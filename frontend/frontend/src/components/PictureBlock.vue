@@ -2,7 +2,11 @@
   <b-col class="d-flex flex-column">
     <!-- play and stop button -->
     <b-col>
-      <b-button-group class="mt-4 px-4" role="group" aria-label="video-control">
+      <b-button-group
+        class="mt-4 px-4 w-100"
+        role="group"
+        aria-label="video-control"
+      >
         <b-button
           type="button"
           class="btn btn-primary"
@@ -13,16 +17,17 @@
         </b-button>
         <b-button
           type="button"
-          class="btn btn-primary"
+          class="btn-primary"
           @click="stop_slides_btn"
           :disabled="!sliding"
         >
           <b-icon icon="stop-fill"></b-icon> Stop
         </b-button>
-        <b-button class="btn btn-primary">
+        <b-button class="btn-primary speed-input">
           <b-form-group
-            :label="'Speed: ' + speech_speed"
+            :label="'Speed: ' + speech_speed * 100"
             label-for="sentence-num-input"
+            class="d-flex flex-grow-1 h-100 align-items-center"
           >
             <b-form-input
               id="sentence-num-input"
@@ -32,22 +37,6 @@
               :step="SPEED_INCREMENT"
               v-model="speech_speed"
               @change="adjust_speed"
-            ></b-form-input>
-          </b-form-group>
-        </b-button>
-        <b-button class="btn btn-primary">
-          <b-form-group
-            :label="'Volumn: ' + volumn"
-            label-for="sentence-num-input"
-          >
-            <b-form-input
-              id="sentence-num-input"
-              type="range"
-              :min="MIN_VOLUMN"
-              :max="MAX_VOLUMN"
-              :step="VOLUMN_INCREMENT"
-              v-model="volumn"
-              @change="adjust_volumn"
             ></b-form-input>
           </b-form-group>
         </b-button>
@@ -88,11 +77,8 @@ export default {
   data() {
     return {
       MIN_SPEED: 0.5,
-      MAX_SPEED: 1.2,
-      SPEED_INCREMENT: 0.1,
-      MIN_VOLUMN: 0,
-      MAX_VOLUMN: 100,
-      VOLUMN_INCREMENT: 1,
+      MAX_SPEED: 1.0,
+      SPEED_INCREMENT: 0.05,
       volumn: 100,
       speech_speed: 0.8,
       speech_utterance: null,
@@ -130,11 +116,6 @@ export default {
   },
   props: {},
   methods: {
-    adjust_volumn() {
-      if (this.speech_utterance) {
-        this.speech_utterance.volume = this.volumn;
-      }
-    },
     adjust_speed(request) {
       this.is_alert_shown = false;
       if (request === "slower") {
@@ -169,6 +150,7 @@ export default {
           await this.play_one_slide(i);
           this.current_slide++;
         } else {
+          this.current_slide = 0;
           break;
         }
       }
@@ -200,6 +182,7 @@ export default {
     },
 
     stop_slides_btn() {
+      this.current_slide = 0;
       this.sliding = false;
       window.speechSynthesis.cancel();
     },
@@ -247,5 +230,8 @@ export default {
   right: 3% !important;
   left: 3% !important;
   padding: 10px !important;
+}
+.speed-input label {
+  margin-right: 1rem;
 }
 </style>

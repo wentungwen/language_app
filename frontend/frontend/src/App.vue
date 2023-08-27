@@ -12,6 +12,7 @@
         <NavBar
           :conversations="conversations"
           :user_id="user_id"
+          :get_conversations="get_conversations"
           @conversation_deleted="get_conversations"
           @load_conversation="load_conversation"
       /></b-col>
@@ -45,7 +46,8 @@ export default {
   },
   data() {
     return {
-      user_id: 2,
+      user_id: null,
+      username: null,
       loading: false,
       active_conversation: 1,
       conversations: [],
@@ -53,20 +55,24 @@ export default {
     };
   },
   methods: {
-    load_conversation(id) {
-      for (let i = 0; i < this.conversations.length; i++) {
-        if (this.conversations[i].uuid == id) {
-          this.loaded_conversation = this.conversations[i];
-          break;
-        }
-      }
+    load_conversation(conversation_id) {
+      // Find the conversation with the matching conversation_id
+      this.loaded_conversation = this.conversations.find(
+        (conversation) => conversation.conversation_id === conversation_id
+      );
     },
     save_btn_clicked() {
       this.get_conversations();
     },
     get_conversations() {
+      const token = localStorage.getItem("token");
+      const config = {
+        headers: {
+          Authorization: token,
+        },
+      };
       axios
-        .get(`http://127.0.0.1:5000/conversations/${this.user_id}`)
+        .get(`http://127.0.0.1:5000/get-conversations`, config)
         .then((res) => {
           if (res.data) {
             this.conversations = res.data["data"];
@@ -74,15 +80,15 @@ export default {
             this.conversations = [];
           }
         })
-        .catch((err) => {
-          console.log(err);
+        .catch(() => {
+          this.conversations = [];
         })
         .finally(() => {
           this.loading = false;
         });
     },
   },
-  created() {
+  mounted() {
     this.get_conversations();
   },
 };

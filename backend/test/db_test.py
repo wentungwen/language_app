@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import psycopg2
 from psycopg2 import sql
+import os
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = os.urandom(32)
 
 # Set a secret key for session management (you should use a strong, random secret key in production)
 app.secret_key = "your_secret_key"

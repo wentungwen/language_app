@@ -1,22 +1,34 @@
 <template>
   <div
-    class="dialog-block mt-4 bg-light pb-3"
+    class="dialog-block mt-4 bg-light pb-3 toolbar-section"
     aria-label="Toolbar with button groups"
   >
     <!-- Toolbar -->
     <b-button-toolbar class="toolbar">
-      <b-button-group class="">
+      <b-button-group>
         <b-button
           @click="translate_btn(received_data)"
           variant="secondary"
-          :disabled="is_editing"
+          :disabled="is_editing || received_data === null"
           >Translate</b-button
         >
-        <b-button @click="copy_btn" variant="secondary" :disabled="is_editing"
+        <b-button
+          @click="copy_btn"
+          variant="secondary"
+          :disabled="is_editing || received_data === null"
           >Copy</b-button
         >
-        <b-button @click="edit_btn" variant="secondary">Edit</b-button>
-        <b-button @click="save_btn" variant="secondary" :disabled="is_editing"
+        <b-button
+          @click="edit_btn"
+          variant="secondary"
+          :disabled="received_data === null"
+          >Edit</b-button
+        >
+        <b-button
+          @click="save_btn"
+          variant="secondary"
+          :disabled="is_editing || received_data === null"
+          v-if="is_logged_in"
           >Save</b-button
         >
       </b-button-group>
@@ -74,6 +86,7 @@ import axios from "axios";
 export default {
   data() {
     return {
+      is_logged_in: false,
       is_copied: false,
       is_saved: false,
       is_translation_shown: false,
@@ -94,11 +107,17 @@ export default {
   },
   methods: {
     save_btn() {
+      const token = localStorage.getItem("token");
+      const config = {
+        headers: {
+          Authorization: token,
+        },
+      };
       const payload = {
         data: this.received_data,
       };
       axios
-        .post(`http://127.0.0.1:5000/save/${this.user_id}`, payload)
+        .post("http://127.0.0.1:5000/save", payload, config)
         .then((res) => {
           if (res.status === 200) {
             this.is_saved = true;
@@ -170,7 +189,6 @@ export default {
   },
   watch: {
     loaded_conversation(loaded_data) {
-      console.log("loaded_data", loaded_data);
       if (loaded_data) {
         this.received_data = loaded_data;
         eventBus.$emit("received_data", this.received_data);
@@ -191,10 +209,18 @@ export default {
       }
     });
   },
+  created() {
+    if (localStorage.getItem("token")) {
+      this.is_logged_in = true;
+    }
+  },
 };
 </script>
 
 <style>
+.toolbar-section {
+  min-height: 200px;
+}
 .toolbar {
   display: flex;
   justify-content: space-between;

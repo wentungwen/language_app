@@ -11,7 +11,7 @@
         >
       </b-form-group>
       <!-- hardness level: range -->
-      <b-form-group label="hard level" label-for="level-select">
+      <b-form-group label="Choose a hard level" label-for="level-select">
         <b-form-select
           id="level-select"
           :options="levelOptions"
@@ -44,7 +44,7 @@
         ></b-form-input>
       </b-form-group>
       <!-- Submit Button -->
-      <b-button @submit="submitForm" type="submit" variant="primary"
+      <b-button @submit="submitForm" type="submit" variant="primary w-100"
         >Generate!</b-button
       >
     </b-form>
@@ -84,7 +84,7 @@ export default {
   methods: {
     generate_conversation(payload) {
       axios
-        .post(`http://127.0.0.1:5000/conversations/${this.user_id}`, payload)
+        .post(`http://127.0.0.1:5000/generate-conversation`, payload)
         .then((res) => {
           this.generated_data.conversations = JSON.parse(res.data);
           this.generated_data.lan_code = this.formData.lan_code;

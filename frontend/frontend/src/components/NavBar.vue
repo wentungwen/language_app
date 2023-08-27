@@ -14,17 +14,19 @@
             <li
               class="nav-item"
               v-for="conversation in conversations"
-              v-bind:key="conversation.uuid"
+              :key="conversation.conversation_id"
             >
               <b-link
                 href="#"
-                @click="$emit('load_conversation', conversation.uuid)"
+                @click="
+                  $emit('load_conversation', conversation.conversation_id)
+                "
                 class="text-white text-decoration-none"
                 active
               >
                 <div class="nav-link active mb-2" aria-current="page">
                   <b-link
-                    @click="delete_conversations(conversation.uuid)"
+                    @click="delete_conversations(conversation.conversation_id)"
                     class="text-white"
                   >
                     <b-icon-x-circle-fill></b-icon-x-circle-fill>
@@ -52,7 +54,9 @@
             height="32"
             class="rounded-circle mr-2"
           />
-          <strong>Welcome, User!</strong>
+          <strong>
+            {{ username ? "Welcome, " + username : "Please login" }}!</strong
+          >
         </b-link>
         <hr />
 
@@ -100,7 +104,7 @@
           <!-- Login  -->
           <b-link v-b-modal.modal-login>Login</b-link>
           <b-modal id="modal-login" title="login" @ok="login_submit">
-            <form ref="login-form">
+            <b-form ref="login-form">
               <b-input-group class="mb-4">
                 <template #prepend>
                   <b-input-group-text>Email</b-input-group-text>
@@ -123,7 +127,10 @@
                   v-model="login_data.password"
                 ></b-form-input>
               </b-input-group>
-            </form>
+              <p class="text-danger" v-if="login_warning !== null">
+                {{ login_warning }}
+              </p>
+            </b-form>
           </b-modal>
         </div>
         <!-- Logout  -->
@@ -141,7 +148,9 @@ export default {
   data() {
     return {
       token: localStorage.getItem("token"),
+      username: localStorage.getItem("username"),
       sidebar_title: "Language Helper",
+      login_warning: null,
       signup_data: {
         username: "",
         email: "",
@@ -160,32 +169,59 @@ export default {
     user_id: {
       type: Number,
     },
+    get_conversations: {
+      type: Function,
+    },
   },
   methods: {
-    delete_conversations(id) {
-      const url = "http://127.0.0.1:5000/delete_conversation/" + id;
-      axios
-        .delete(url)
-        .then((res) => {
-          if (res.status === 200) {
-            this.$emit("conversation_deleted");
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    delete_conversations(conversation_id) {
+      if (this.token) {
+        const config = {
+          headers: {
+            Authorization: this.token,
+          },
+          data: {
+            conversation_id: conversation_id,
+          },
+        };
+        axios
+          .delete("http://127.0.0.1:5000/delete-conversation", config)
+          .then((res) => {
+            if (res.status === 200) {
+              this.$emit("conversation-deleted", conversation_id);
+              this.get_conversations();
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else {
+        console.log("no token");
+      }
     },
-    login_submit() {
-      axios
-        .post("http://127.0.0.1:5000/login", this.login_data)
-        .then((res) => {
-          console.log("res", res);
-          localStorage.setItem("token", res.data.token);
-          window.location.reload();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    login_submit(event) {
+      event.preventDefault();
+      if (this.login_data.email === "" || this.login_data.password === "") {
+        this.login_warning = "Please enter email and password";
+      } else {
+        axios
+          .post("http://127.0.0.1:5000/login", this.login_data)
+          .then((res) => {
+            localStorage.setItem("token", res.data.token);
+            localStorage.setItem("username", res.data.username);
+            window.location.reload();
+          })
+          .catch((err) => {
+            if (err.response && err.response.status === 404) {
+              this.login_warning = "Wrong email or password. Try again!";
+            } else {
+              this.login_warning = "Something went wrong";
+            }
+          });
+      }
+      setTimeout(() => {
+        this.login_warning = null;
+      }, 2000);
     },
     signup_submit() {
       axios
@@ -205,12 +241,13 @@ export default {
           { user_id: user_id },
           {
             headers: {
-              Authorization: "Bearer " + this.token,
+              Authorization: this.token,
             },
           }
         )
         .then(() => {
           localStorage.removeItem("token");
+          localStorage.removeItem("username");
           window.location.reload();
         })
         .catch((err) => {
@@ -229,5 +266,8 @@ export default {
 .sidebar {
   height: 100vh;
   width: 200px;
+}
+.input-group-text {
+  width: 120px;
 }
 </style>
