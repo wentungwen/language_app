@@ -100,6 +100,7 @@ mock_conversations = [
     },
 ]
 
+
 @app.route("/login", methods=["POST"])
 def login():
     posted_data = request.get_json()
@@ -118,7 +119,6 @@ def login():
 @app.route("/signup", methods=["POST"])
 def signup():
     posted_data = request.get_json()
-    print(posted_data)
     token = secrets.token_hex(16)
     user = User(
         username=posted_data["username"],
@@ -203,7 +203,6 @@ def get_conversations():
     else:
         user_id = decode_token(token)
         user = User.query.filter_by(user_id=user_id).first()
-        print("token", user_id, token)
         if not user:
             return jsonify({"message": "User not found"}), 404
         conversations = Conversation.query.filter_by(user=user).all()
@@ -223,9 +222,34 @@ def get_conversations():
                     "conversations": conversation_content,
                 }
                 data.append(conversation_data)
+            print("data:.....", data)
             return jsonify({"data": data}), 200
         else:
             return jsonify({"data": []})
+
+
+@app.route("/get-all-conversations", methods=["GET"])
+def get_all_conversations():
+    conversations = Conversation.query.all()
+    if conversations:
+        data = []
+        for conversation in conversations:
+            contents = Content.query.filter_by(conversation=conversation).all()
+            conversation_content = [
+                {"sender": content.sender, "content": content.content}
+                for content in contents
+            ]
+            conversation_data = {
+                "conversation_id": conversation.conversation_id,
+                "date": conversation.date,
+                "topic": conversation.topic,
+                "lan_code": conversation.lan_code,
+                "conversations": conversation_content,
+            }
+            data.append(conversation_data)
+        return jsonify({"data": data}), 200
+    else:
+        return jsonify({"data": []}), 200
 
 
 @app.route("/generate-conversation", methods=["POST"])
@@ -301,8 +325,6 @@ def generate_gpt_conversation(lan_code, topic, sentence_num, level):
         "max_tokens": 1000,
         "temperature": 0.7,
     }
-    print(request_headers)
-    print(prompt)
 
     response = requests.post(
         GPT_API_ENDPOINT, headers=request_headers, json=request_data
@@ -310,7 +332,6 @@ def generate_gpt_conversation(lan_code, topic, sentence_num, level):
     if response.status_code == 200:
         generated_conversations = response.json()["choices"][0]["text"]
         stripped_res = generated_conversations.strip()
-        print(stripped_res)
         return stripped_res
     else:
         print(

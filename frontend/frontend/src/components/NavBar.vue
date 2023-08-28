@@ -4,40 +4,45 @@
       ><b-icon-list></b-icon-list
     ></b-button>
     <b-sidebar id="sidebar-1" :title="sidebar_title" shadow>
-      <b-col class="flex-grow-1" v-if="is_logged_in">
+      <b-col class="flex-grow-1">
+        <b-link to="/all-conversations">See other's conversation</b-link>
         <hr />
-        <b-icon-bank></b-icon-bank>
-        <span class="pl-2">Saved conversations</span>
-        <hr />
-        <ul class="nav nav-pills flex-column mb-auto">
-          <div v-if="conversations">
-            <li
-              class="nav-item"
-              v-for="conversation in conversations"
-              :key="conversation.conversation_id"
-            >
-              <b-link
-                href="#"
-                @click="
-                  $emit('load_conversation', conversation.conversation_id)
-                "
-                class="text-white text-decoration-none"
-                active
+        <div v-if="is_logged_in">
+          <b-icon-bank></b-icon-bank>
+          <span class="pl-2">Saved conversations</span>
+          <hr />
+          <ul class="nav nav-pills flex-column mb-auto">
+            <div v-if="conversations">
+              <li
+                class="nav-item"
+                v-for="conversation in conversations"
+                :key="conversation.conversation_id"
               >
-                <div class="nav-link active mb-2" aria-current="page">
-                  <b-link
-                    @click="delete_conversations(conversation.conversation_id)"
-                    class="text-white"
-                  >
-                    <b-icon-x-circle-fill></b-icon-x-circle-fill>
-                  </b-link>
-                  <span class="pl-2">{{ conversation.topic }}</span>
-                </div>
-              </b-link>
-            </li>
-          </div>
-          <div v-else>Add conversations</div>
-        </ul>
+                <b-link
+                  href="#"
+                  @click="
+                    $emit('load_conversation', conversation.conversation_id)
+                  "
+                  class="text-white text-decoration-none"
+                  active
+                >
+                  <div class="nav-link active mb-2" aria-current="page">
+                    <b-link
+                      @click="
+                        delete_conversations(conversation.conversation_id)
+                      "
+                      class="text-white"
+                    >
+                      <b-icon-x-circle-fill></b-icon-x-circle-fill>
+                    </b-link>
+                    <span class="pl-2">{{ conversation.topic }}</span>
+                  </div>
+                </b-link>
+              </li>
+            </div>
+            <div v-else>Add conversations</div>
+          </ul>
+        </div>
       </b-col>
       <!-- user photo and username -->
       <b-col class="position-absolute bottom-0">
@@ -170,6 +175,7 @@ export default {
       type: Number,
     },
     get_conversations: {
+      required: true,
       type: Function,
     },
   },
@@ -188,7 +194,6 @@ export default {
           .delete("http://127.0.0.1:5000/delete-conversation", config)
           .then((res) => {
             if (res.status === 200) {
-              this.$emit("conversation-deleted", conversation_id);
               this.get_conversations();
             }
           })

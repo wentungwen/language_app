@@ -5,7 +5,7 @@
       <b-form-group label="I'm learning:" label-for="language-select">
         <b-form-select
           id="language-select"
-          :options="languageOptions"
+          :options="language_options"
           v-model="formData.lan_code"
           >I'm learning:</b-form-select
         >
@@ -63,7 +63,7 @@ export default {
         sentence_num: 2,
         level: "A1",
       },
-      languageOptions: [
+      language_options: [
         { value: "nl", text: "Dutch" },
         { value: "es", text: "Spanish" },
         { value: "ja", text: "Japanese" },
