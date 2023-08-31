@@ -2,7 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import AllConversationView from "../views/AllConversationView.vue";
-
+import CustomListeningView from "../views/CustomListeningView.vue";
 Vue.use(VueRouter);
 
 const routes = [
@@ -15,6 +15,11 @@ const routes = [
     path: "/all-conversations",
     name: "all-conversations",
     component: AllConversationView,
+  },
+  {
+    path: "/custom-listening",
+    name: "custom-listening",
+    component: CustomListeningView,
   },
 ];
 

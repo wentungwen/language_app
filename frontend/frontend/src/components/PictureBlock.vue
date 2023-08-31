@@ -1,5 +1,5 @@
 <template>
-  <b-col class="d-flex flex-column">
+  <div class="d-flex flex-column">
     <!-- play and stop button -->
     <b-col>
       <b-button-group
@@ -68,7 +68,7 @@
         ></b-carousel-slide>
       </b-carousel>
     </b-col>
-  </b-col>
+  </div>
 </template>
 
 <script>

@@ -5,7 +5,14 @@
     ></b-button>
     <b-sidebar id="sidebar-1" :title="sidebar_title" shadow>
       <b-col class="flex-grow-1">
-        <b-link to="/all-conversations">See other's conversation</b-link>
+        <div v-for="route in routes" :key="route.path">
+          <div class="bg-light my-2">
+            <b-link :to="route.path"
+              ><b-icon :icon="route.icon" class="mr-2"></b-icon
+              >{{ route.name }}</b-link
+            >
+          </div>
+        </div>
         <hr />
         <div v-if="is_logged_in">
           <b-icon-bank></b-icon-bank>
@@ -152,6 +159,19 @@ export default {
   name: "NavBar",
   data() {
     return {
+      routes: [
+        { path: "/", name: "Conversation generator", icon: "box" },
+        {
+          path: "/all-conversations",
+          name: "See other's conversation",
+          icon: "people",
+        },
+        {
+          path: "/custom-listening",
+          name: "Custom Listening Test",
+          icon: "book",
+        },
+      ],
       token: localStorage.getItem("token"),
       username: localStorage.getItem("username"),
       sidebar_title: "Language Helper",
@@ -274,5 +294,8 @@ export default {
 }
 .input-group-text {
   width: 120px;
+}
+a {
+  text-decoration: none !important;
 }
 </style>

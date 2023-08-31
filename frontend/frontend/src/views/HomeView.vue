@@ -1,17 +1,19 @@
 <template>
-  <b-row>
-    <b-col class="col-4">
-      <GenerateForm :user_id="user_id" />
-      <ConversationBlock
-        :loaded_conversation="loaded_conversation"
-        :conversation="conversations[active_conversation]"
-        @save_btn_clicked="get_conversations"
-      />
-    </b-col>
-    <b-col class="col picture-block">
-      <PictureBlock />
-    </b-col>
-  </b-row>
+  <b-container>
+    <b-row class="justify-content-center">
+      <b-col class="generate-form ml-3">
+        <GenerateForm :user_id="user_id" />
+        <ConversationBlock
+          :loaded_conversation="loaded_conversation"
+          :conversation="conversations[active_conversation]"
+          @save_btn_clicked="get_conversations"
+        />
+      </b-col>
+      <b-col class="picture-block">
+        <PictureBlock />
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 <script>
 import GenerateForm from "@/components/GenerateForm.vue";
@@ -56,6 +58,9 @@ body {
   min-height: 100vh;
 }
 .picture-block {
+  max-width: 700px;
+}
+.generate-form {
   max-width: 700px;
 }
 </style>

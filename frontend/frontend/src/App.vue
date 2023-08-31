@@ -1,28 +1,30 @@
 <template>
-  <b-container id="app">
-    <b-row v-if="loading">
-      <b-img
-        style="max-width: 300px"
-        :src="require('@/assets/loading.gif')"
-        center
-      ></b-img>
-    </b-row>
-    <b-row v-else>
-      <b-row class="col-auto">
-        <NavBar
+  <div class="d-flex flex-column">
+    <b-row id="app" class="wrapper">
+      <b-row v-if="loading">
+        <b-img
+          style="max-width: 300px"
+          :src="require('@/assets/loading.gif')"
+          center
+        ></b-img>
+      </b-row>
+      <b-row v-else>
+        <b-row class="col-auto">
+          <NavBar
+            :conversations="conversations"
+            :user_id="user_id"
+            :get_conversations="get_conversations"
+            @load_conversation="load_conversation"
+        /></b-row>
+        <RouterView
           :conversations="conversations"
-          :user_id="user_id"
+          :loaded_conversation="loaded_conversation"
           :get_conversations="get_conversations"
-          @load_conversation="load_conversation"
-      /></b-row>
-      <RouterView
-        :conversations="conversations"
-        :loaded_conversation="loaded_conversation"
-        :get_conversations="get_conversations"
-      />
+        />
+      </b-row>
     </b-row>
     <FooterBlock />
-  </b-container>
+  </div>
 </template>
 <script>
 import { RouterView } from "vue-router";
@@ -78,13 +80,15 @@ export default {
 </script>
 
 <style scoped>
-#app {
-  height: 100vh;
+html,
+body {
+  height: 100%;
+  margin: 0;
 }
 body {
   height: 100vh;
 }
-.picture-block {
-  max-width: 700px;
+.wrapper {
+  flex-grow: 1;
 }
 </style>

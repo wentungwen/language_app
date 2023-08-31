@@ -142,23 +142,15 @@ export default {
       this.translated_conversations = [];
     },
     translate_btn(received_data) {
-      if (this.translated_conversations.length === 0) {
-        this.translate_content(
-          received_data.lan_code,
-          received_data.conversations,
-          this.translate_to_lan_code
-        );
-      } else {
-        this.is_translation_shown = !this.is_translation_shown;
-      }
-    },
-    translate_content(lan_code, conversations, translate_to_lan_code) {
+      const lan_code = received_data.lan_code;
+      const conversations = received_data.conversations;
+      const translate_to_lan_code = this.translate_to_lan_code;
+
       const payload = {
         lan_code,
         conversations,
         translate_to_lan_code,
       };
-      // send to backend to translate
       axios
         .post("http://127.0.0.1:5000/translate", payload)
         .then((res) => {

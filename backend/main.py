@@ -9,6 +9,7 @@ import secrets
 import jwt
 from datetime import datetime
 import requests, os
+from datetime import datetime
 
 # import psycopg2
 
@@ -183,6 +184,7 @@ def save():
 def translate_to_en():
     if request.method == "POST":
         posted_data = request.get_json()
+        print("posted_data:.....", posted_data)
         conversations = posted_data["conversations"]
         lan_code = posted_data["lan_code"]
         translated_conversations = conversations
@@ -239,9 +241,11 @@ def get_all_conversations():
                 {"sender": content.sender, "content": content.content}
                 for content in contents
             ]
+
+            datatime_obg = datetime.strptime(conversation.date, "%Y-%m-%d %H:%M:%S.%f")
             conversation_data = {
                 "conversation_id": conversation.conversation_id,
-                "date": conversation.date,
+                "date": datetime.strftime(datatime_obg, "%d-%m-%Y"),
                 "topic": conversation.topic,
                 "lan_code": conversation.lan_code,
                 "conversations": conversation_content,
