@@ -3,7 +3,7 @@
 
 # Setup
 ```shell
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 ```
 
 # Run a project
