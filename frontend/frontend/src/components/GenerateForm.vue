@@ -7,7 +7,8 @@
           id="language-select"
           :options="language_options"
           v-model="formData.lan_code"
-          >I'm learning:</b-form-select
+        >
+          <p>I'm learning:</p></b-form-select
         >
       </b-form-group>
       <!-- hardness level: range -->
