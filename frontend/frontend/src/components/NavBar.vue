@@ -1,7 +1,7 @@
 <template>
   <div>
-    <b-button v-b-toggle.sidebar-1 class="m-2 mr-0 btn-light"
-      ><b-icon-list></b-icon-list
+    <b-button variant="primary" v-b-toggle.sidebar-1 class="m-2 mr-0">
+      <b-icon-list></b-icon-list
     ></b-button>
     <b-sidebar id="sidebar-1" :title="sidebar_title" shadow>
       <b-col class="flex-grow-1">

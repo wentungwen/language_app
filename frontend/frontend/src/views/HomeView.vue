@@ -2,15 +2,17 @@
   <b-container>
     <b-row class="justify-content-center">
       <b-col class="generate-form ml-3">
-        <GenerateForm :user_id="user_id" />
-        <ConversationBlock
-          :loaded_conversation="loaded_conversation"
-          :conversation="conversations[active_conversation]"
-          @save_btn_clicked="get_conversations"
-        />
+        <b-card> <GenerateForm :user_id="user_id" /></b-card>
+        <b-card class="mt-2">
+          <ConversationBlock
+            :loaded_conversation="loaded_conversation"
+            :conversation="conversations[active_conversation]"
+            @save_btn_clicked="get_conversations"
+          />
+        </b-card>
       </b-col>
       <b-col class="picture-block">
-        <PictureBlock />
+        <b-card> <PictureBlock /></b-card>
       </b-col>
     </b-row>
   </b-container>

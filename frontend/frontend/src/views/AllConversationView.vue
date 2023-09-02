@@ -1,8 +1,8 @@
 <template>
   <b-container>
-    <b-row class="justify-content-center">
+    <b-row class="justify-content-center sticky-row bg-light">
       <!-- filter -->
-      <b-row>
+      <b-col cols="8">
         <h4>See other people's conversations</h4>
         <b-form class="mb-3">
           <div class="row">
@@ -28,9 +28,9 @@
             </div>
           </div>
         </b-form>
-        <b-row class="justify-content-center">
+        <b-row class="justify-content-center" v-if="is_filtered_alert_shown">
+          <p>nothing here, try other keywords</p>
           <b-img
-            v-if="is_filtered_alert_shown"
             :src="require('@/assets/nothing.png')"
             style="max-width: 300px"
           ></b-img>
@@ -38,74 +38,92 @@
           <!-- <h2>{{ form_data.lan_code }}</h2> -->
           <h2>{{ form_data.lan_text }}</h2>
         </b-row>
-      </b-row>
-      <b-row>
-        <b-col
-          v-for="conversation in displayed_conversation"
-          :key="conversation.conversation_id"
-          class="col-4"
-        >
-          <b-card class="mb-4">
-            <template #header>
-              <div class="d-flex justify-content-between align-items-center">
-                <h4 class="mt-2">{{ conversation.topic }}</h4>
-                <span class="badge bg-white text-dark">{{
-                  conversation.date
-                }}</span>
-              </div>
-            </template>
-            <template #default>
-              <div>
-                <div
-                  v-for="(message, index) in conversation.conversations"
-                  :key="index"
-                >
-                  <p>{{ message.sender }}: {{ message.content }}</p>
-                  <Transition name="slide-fade">
-                    <div v-if="conversation.is_translation_shown">
-                      <p
-                        class="badge bg-secondary"
-                        v-html="decode_HTML_entities(message.translation)"
-                      ></p>
-                    </div>
-                  </Transition>
-                </div>
-              </div>
-            </template>
-            <template #footer>
-              <!-- action alerts -->
-              <b-alert
-                :show="
-                  is_copied && copied_index === conversation.conversation_id
-                "
-                class="m-3 alert-success"
-                >Copied!</b-alert
+      </b-col>
+    </b-row>
+    <!-- conversation cards -->
+    <b-row class="p-3 bg-white">
+      <b-btn-toolbar aria-label="Toolbar with button groups">
+        <b-btn-group role="group" aria-label="view-group">
+          <b-button variant="dark" disabled>view</b-button>
+          <b-button
+            variant="outline-dark"
+            :disabled="col_view < 3"
+            @click="adjust_col_view(-1)"
+          >
+            <b-icon-dash></b-icon-dash>
+          </b-button>
+          <b-button
+            variant="outline-dark"
+            :disabled="col_view > 5"
+            @click="adjust_col_view(1)"
+          >
+            <b-icon-plus></b-icon-plus>
+          </b-button>
+        </b-btn-group>
+      </b-btn-toolbar>
+    </b-row>
+    <b-row class="p-3 bg-white">
+      <b-col
+        v-for="conversation in displayed_conversation"
+        :key="conversation.conversation_id"
+        :cols="col_view"
+      >
+        <b-card class="mb-4">
+          <template #header>
+            <div class="d-flex justify-content-between align-items-center">
+              <h4 class="mt-2">{{ conversation.topic }}</h4>
+              <span class="badge bg-white text-dark">{{
+                conversation.date
+              }}</span>
+            </div>
+          </template>
+          <template #default>
+            <div>
+              <div
+                v-for="(message, index) in conversation.conversations"
+                :key="index"
               >
-              <!-- button here -->
+                <p>{{ message.sender }}: {{ message.content }}</p>
+                <Transition name="slide-fade">
+                  <div v-if="conversation.is_translation_shown">
+                    <p
+                      class="badge bg-secondary"
+                      v-html="decode_HTML_entities(message.translation)"
+                    ></p>
+                  </div>
+                </Transition>
+              </div>
+            </div>
+          </template>
+          <template #footer>
+            <!-- action alerts -->
+            <b-alert
+              :show="is_copied && copied_index === conversation.conversation_id"
+              class="m-3 alert-success"
+              >Copied!</b-alert
+            >
+            <!-- button here -->
 
-              <b-button
-                class="mr-2 btn-secondary"
-                @click="copy_btn(conversation)"
-              >
-                <b-icon-clipboard></b-icon-clipboard>
-                Copy</b-button
-              >
-              <b-button
-                class="mr-2 btn-secondary"
-                @click="translate_btn(conversation)"
-              >
-                <b-icon-translate></b-icon-translate>
-                Translate</b-button
-              >
-              <b-button
-                variant="primary"
-                @click="save_conversation(conversation)"
-                >Save</b-button
-              >
-            </template>
-          </b-card>
-        </b-col>
-      </b-row>
+            <b-button
+              class="mr-2 btn-secondary"
+              @click="copy_btn(conversation)"
+            >
+              <b-icon-clipboard></b-icon-clipboard>
+              Copy</b-button
+            >
+            <b-button
+              class="mr-2 btn-secondary"
+              @click="translate_btn(conversation)"
+            >
+              <b-icon-translate></b-icon-translate>
+              Translate</b-button
+            >
+            <b-button variant="primary" @click="save_conversation(conversation)"
+              >Save</b-button
+            >
+          </template>
+        </b-card>
+      </b-col>
     </b-row>
   </b-container>
 </template>
@@ -119,6 +137,7 @@ export default {
   },
   data() {
     return {
+      col_view: 3,
       copied_index: null,
       is_copied: false,
       is_translation_shown: false,
@@ -139,6 +158,10 @@ export default {
     };
   },
   methods: {
+    adjust_col_view(num) {
+      this.col_view += num;
+      console.log(this.col_view);
+    },
     filter_conversation() {
       this.is_filtered_alert_shown = false;
       const target_lan = this.form_data.lan_code;
@@ -296,5 +319,13 @@ export default {
 .card:hover .card-footer {
   transform: translateY(0);
   visibility: visible;
+}
+.card-header {
+  background-color: rgb(209, 242, 250) !important;
+}
+.sticky-row {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 </style>

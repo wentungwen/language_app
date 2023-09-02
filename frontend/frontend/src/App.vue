@@ -1,6 +1,6 @@
 <template>
-  <div class="d-flex flex-column">
-    <b-row id="app" class="wrapper">
+  <div class="d-flex flex-column wrapper bg-light">
+    <div id="app">
       <b-row v-if="loading">
         <b-img
           style="max-width: 300px"
@@ -22,7 +22,7 @@
           :get_conversations="get_conversations"
         />
       </b-row>
-    </b-row>
+    </div>
     <FooterBlock />
   </div>
 </template>
@@ -79,16 +79,16 @@ export default {
 };
 </script>
 
-<style scoped>
-html,
+<style>
+html {
+  height: 100vh !important;
+}
+#app,
 body {
-  height: 100%;
+  height: 100% !important;
   margin: 0;
 }
-body {
-  height: 100vh;
-}
 .wrapper {
-  flex-grow: 1;
+  height: 100%;
 }
 </style>
