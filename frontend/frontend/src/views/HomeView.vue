@@ -1,7 +1,7 @@
 <template>
-  <b-container>
+  <div>
     <b-row class="justify-content-center">
-      <b-col class="generate-form ml-3">
+      <b-col class="generate-form col-3">
         <b-card> <GenerateForm :user_id="user_id" /></b-card>
         <b-card class="mt-2">
           <ConversationBlock
@@ -15,7 +15,7 @@
         <b-card> <PictureBlock /></b-card>
       </b-col>
     </b-row>
-  </b-container>
+  </div>
 </template>
 <script>
 import GenerateForm from "@/components/GenerateForm.vue";

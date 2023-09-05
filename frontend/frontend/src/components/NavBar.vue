@@ -1,156 +1,106 @@
 <template>
   <div>
-    <b-button variant="primary" v-b-toggle.sidebar-1 class="m-2 mr-0">
-      <b-icon-list></b-icon-list
-    ></b-button>
-    <b-sidebar id="sidebar-1" :title="sidebar_title" shadow>
-      <b-col class="flex-grow-1">
-        <div v-for="route in routes" :key="route.path">
-          <div class="bg-light my-2">
-            <b-link :to="route.path"
-              ><b-icon :icon="route.icon" class="mr-2"></b-icon
-              >{{ route.name }}</b-link
-            >
-          </div>
-        </div>
-        <hr />
-        <div v-if="is_logged_in">
-          <b-icon-bank></b-icon-bank>
-          <span class="pl-2">Saved conversations</span>
-          <hr />
-          <ul class="nav nav-pills flex-column mb-auto">
-            <div v-if="conversations">
-              <li
-                class="nav-item"
-                v-for="conversation in conversations"
-                :key="conversation.conversation_id"
-              >
-                <b-link
-                  href="#"
-                  @click="
-                    $emit('load_conversation', conversation.conversation_id)
-                  "
-                  class="text-white text-decoration-none"
-                  active
-                >
-                  <div class="nav-link active mb-2" aria-current="page">
-                    <b-link
-                      @click="
-                        delete_conversations(conversation.conversation_id)
-                      "
-                      class="text-white"
-                    >
-                      <b-icon-x-circle-fill></b-icon-x-circle-fill>
-                    </b-link>
-                    <span class="pl-2">{{ conversation.topic }}</span>
-                  </div>
-                </b-link>
-              </li>
-            </div>
-            <div v-else>Add conversations</div>
-          </ul>
-        </div>
-      </b-col>
-      <!-- user photo and username -->
-      <b-col class="position-absolute bottom-0">
-        <b-link
-          href="#"
-          class="d-flex align-items-center link-dark text-decoration-none"
-          id="dropdownUser2"
-        >
-          <hr />
-          <img
-            src="https://as1.ftcdn.net/v2/jpg/05/53/79/60/1000_F_553796090_XHrE6R9jwmBJUMo9HKl41hyHJ5gqt9oz.jpg"
-            alt=""
-            width="32"
-            height="32"
-            class="rounded-circle mr-2"
-          />
-          <strong>
-            {{ username ? "Welcome, " + username : "Please login" }}!</strong
+    <b-navbar toggleable="lg" type="dark" variant="primary">
+      <b-navbar-brand class="pl-2" href="/">Language Helper</b-navbar-brand>
+      <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+      <b-collapse id="nav-collapse" is-nav>
+        <b-navbar-nav v-for="route in routes" :key="route.path">
+          <b-nav-item :to="route.path" class="nav-decoration"
+            ><b-icon :icon="route.icon" class="mr-1"></b-icon
+            >{{ route.name }}</b-nav-item
           >
-        </b-link>
-        <hr />
+        </b-navbar-nav>
 
-        <!-- Sign up and login  -->
-        <div class="signup_login_block" v-if="!is_logged_in">
-          <b-link v-b-modal.modal-signup>Sign up</b-link>
-          <b-modal id="modal-signup" title="Signup" @ok="signup_submit">
-            <form ref="signup-form">
-              <b-input-group class="mb-4">
-                <template #prepend>
-                  <b-input-group-text>Username</b-input-group-text>
-                </template>
-                <b-form-input
-                  id="username-input"
-                  type="text"
-                  required
-                  v-model="signup_data.username"
-                ></b-form-input>
-              </b-input-group>
-              <b-input-group class="mb-4">
-                <template #prepend>
-                  <b-input-group-text>Email</b-input-group-text>
-                </template>
-                <b-form-input
-                  id="email-input"
-                  type="email"
-                  required
-                  v-model="signup_data.email"
-                ></b-form-input>
-              </b-input-group>
-              <b-input-group>
-                <template #prepend>
-                  <b-input-group-text>Password</b-input-group-text>
-                </template>
-                <b-form-input
-                  id="password-input"
-                  type="password"
-                  required
-                  v-model="signup_data.password"
-                ></b-form-input>
-              </b-input-group>
-            </form>
-          </b-modal>
-          <br />
-          <!-- Login  -->
-          <b-link v-b-modal.modal-login>Login</b-link>
-          <b-modal id="modal-login" title="login" @ok="login_submit">
-            <b-form ref="login-form">
-              <b-input-group class="mb-4">
-                <template #prepend>
-                  <b-input-group-text>Email</b-input-group-text>
-                </template>
-                <b-form-input
-                  id="email-input"
-                  type="email"
-                  required
-                  v-model="login_data.email"
-                ></b-form-input>
-              </b-input-group>
-              <b-input-group>
-                <template #prepend>
-                  <b-input-group-text>Password</b-input-group-text>
-                </template>
-                <b-form-input
-                  id="password-input"
-                  type="password"
-                  required
-                  v-model="login_data.password"
-                ></b-form-input>
-              </b-input-group>
-              <p class="text-danger" v-if="login_warning !== null">
-                {{ login_warning }}
-              </p>
-            </b-form>
-          </b-modal>
-        </div>
-        <!-- Logout  -->
-        <div class="logout-block" v-if="is_logged_in">
-          <b-link @click="logout_submit(user_id)">Logout</b-link>
-        </div>
-      </b-col>
-    </b-sidebar>
+        <!-- Right aligned nav items -->
+        <b-navbar-nav class="ml-auto">
+          <b-nav-item>
+            <b-icon-person-circle></b-icon-person-circle>
+            <strong>
+              {{ username ? "Welcome, " + username : "Please login" }}!</strong
+            >
+          </b-nav-item>
+
+          <!-- Sign up/ login/logout link  -->
+          <b-nav-item v-if="!is_logged_in" v-b-modal.modal-signup
+            >Sign up</b-nav-item
+          >
+          <b-nav-item v-if="!is_logged_in" v-b-modal.modal-login
+            >Login</b-nav-item
+          >
+          <b-nav-item v-if="is_logged_in" @click="logout_submit(user_id)"
+            >Logout</b-nav-item
+          >
+        </b-navbar-nav>
+      </b-collapse>
+    </b-navbar>
+    <!-- signup modal -->
+    <b-modal id="modal-signup" title="Signup" @ok="signup_submit">
+      <form ref="signup-form">
+        <b-input-group class="mb-4">
+          <template #prepend>
+            <b-input-group-text>Username</b-input-group-text>
+          </template>
+          <b-form-input
+            id="username-input"
+            type="text"
+            required
+            v-model="signup_data.username"
+          ></b-form-input>
+        </b-input-group>
+        <b-input-group class="mb-4">
+          <template #prepend>
+            <b-input-group-text>Email</b-input-group-text>
+          </template>
+          <b-form-input
+            id="email-input"
+            type="email"
+            required
+            v-model="signup_data.email"
+          ></b-form-input>
+        </b-input-group>
+        <b-input-group>
+          <template #prepend>
+            <b-input-group-text>Password</b-input-group-text>
+          </template>
+          <b-form-input
+            id="password-input"
+            type="password"
+            required
+            v-model="signup_data.password"
+          ></b-form-input>
+        </b-input-group>
+      </form>
+    </b-modal>
+    <!-- Login modal  -->
+    <b-modal id="modal-login" title="login" @ok="login_submit">
+      <b-form ref="login-form">
+        <b-input-group class="mb-4">
+          <template #prepend>
+            <b-input-group-text>Email</b-input-group-text>
+          </template>
+          <b-form-input
+            id="email-input"
+            type="email"
+            required
+            v-model="login_data.email"
+          ></b-form-input>
+        </b-input-group>
+        <b-input-group>
+          <template #prepend>
+            <b-input-group-text>Password</b-input-group-text>
+          </template>
+          <b-form-input
+            id="password-input"
+            type="password"
+            required
+            v-model="login_data.password"
+          ></b-form-input>
+        </b-input-group>
+        <p class="text-danger" v-if="login_warning !== null">
+          {{ login_warning }}
+        </p>
+      </b-form>
+    </b-modal>
   </div>
 </template>
 <script>
@@ -174,7 +124,6 @@ export default {
       ],
       token: localStorage.getItem("token"),
       username: localStorage.getItem("username"),
-      sidebar_title: "Language Helper",
       login_warning: null,
       signup_data: {
         username: "",
@@ -187,43 +136,7 @@ export default {
       },
     };
   },
-  props: {
-    conversations: {
-      type: Array,
-    },
-    user_id: {
-      type: Number,
-    },
-    get_conversations: {
-      required: true,
-      type: Function,
-    },
-  },
   methods: {
-    delete_conversations(conversation_id) {
-      if (this.token) {
-        const config = {
-          headers: {
-            Authorization: this.token,
-          },
-          data: {
-            conversation_id: conversation_id,
-          },
-        };
-        axios
-          .delete("http://127.0.0.1:5000/delete-conversation", config)
-          .then((res) => {
-            if (res.status === 200) {
-              this.get_conversations();
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      } else {
-        console.log("no token");
-      }
-    },
     login_submit(event) {
       event.preventDefault();
       if (this.login_data.email === "" || this.login_data.password === "") {
@@ -288,14 +201,32 @@ export default {
 };
 </script>
 <style>
-.sidebar {
-  height: 100vh;
-  width: 200px;
+.nav-decoration a {
+  position: relative;
+  display: inline-block;
+  padding-right: 10px;
 }
-.input-group-text {
-  width: 120px;
+
+.nav-decoration a::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #ffffff;
+  transform: scaleX(0);
+  transition: transform 0.2s ease-in-out;
 }
-a {
-  text-decoration: none !important;
+
+.nav-decoration a:hover::after,
+.nav-decoration a.router-link-exact-active::after {
+  transform: scaleX(0.5);
+}
+.nav-decoration a.router-link-exact-active {
+  color: #ffffff !important;
+}
+.nav-link {
+  color: rgba(255, 255, 255, 0.6) !important;
 }
 </style>

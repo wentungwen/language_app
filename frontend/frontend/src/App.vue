@@ -1,6 +1,7 @@
 <template>
   <div class="d-flex flex-column wrapper bg-light">
     <div id="app">
+      <NavBar />
       <b-row v-if="loading">
         <b-img
           style="max-width: 300px"
@@ -9,13 +10,13 @@
         ></b-img>
       </b-row>
       <b-row v-else>
-        <b-row class="col-auto">
-          <NavBar
+        <b-col class="col-auto">
+          <SideBar
             :conversations="conversations"
             :user_id="user_id"
             :get_conversations="get_conversations"
             @load_conversation="load_conversation"
-        /></b-row>
+        /></b-col>
         <RouterView
           :conversations="conversations"
           :loaded_conversation="loaded_conversation"
@@ -28,8 +29,9 @@
 </template>
 <script>
 import { RouterView } from "vue-router";
-import NavBar from "@/components/NavBar.vue";
 import FooterBlock from "@/components/FooterBlock.vue";
+import NavBar from "@/components/NavBar.vue";
+import SideBar from "@/components/SideBar.vue";
 import axios from "axios";
 export default {
   data() {
@@ -45,6 +47,7 @@ export default {
     RouterView,
     NavBar,
     FooterBlock,
+    SideBar,
   },
   methods: {
     load_conversation(conversation_id) {
@@ -80,13 +83,12 @@ export default {
 </script>
 
 <style>
-html {
-  height: 100vh !important;
-}
+html,
 #app,
 body {
-  height: 100% !important;
+  min-height: calc(100vh - 3rem) !important;
   margin: 0;
+  overflow-x: hidden;
 }
 .wrapper {
   height: 100%;
