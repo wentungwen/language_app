@@ -1,7 +1,7 @@
 <template>
   <footer class="footer bg-light">
     <div class="row">
-      <div class="col-md text-center text-secondary">
+      <div class="footer-text col-md text-center">
         <small>&copy; 2024 wenwen. All rights reserved.</small>
       </div>
     </div>
@@ -10,9 +10,13 @@
 
 <style>
 .footer {
-  padding: 20px 0;
+  padding: 10px 0;
   color: #555;
-  max-height: 60px;
-  margin-top: auto;
+  height: 3rem;
+  border-top: 0.5px solid #c8c8c8;
+}
+.footer-text {
+  font-size: 12px;
+  color: #555;
 }
 </style>
