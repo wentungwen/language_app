@@ -114,7 +114,6 @@ export default {
       },
     };
   },
-  props: {},
   methods: {
     adjust_speed(request) {
       this.is_alert_shown = false;

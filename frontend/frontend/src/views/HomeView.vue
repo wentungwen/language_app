@@ -1,18 +1,18 @@
 <template>
   <div>
     <b-row class="justify-content-center">
-      <b-col class="generate-form col-3">
+      <b-col class="generate-form" cols="3">
         <b-card> <GenerateForm :user_id="user_id" /></b-card>
-        <b-card class="mt-2">
-          <ConversationBlock
-            :loaded_conversation="loaded_conversation"
-            :conversation="conversations[active_conversation]"
-            @save_btn_clicked="get_conversations"
-          />
-        </b-card>
       </b-col>
       <b-col class="picture-block">
-        <b-card> <PictureBlock /></b-card>
+        <!-- <b-card class="mt-2"> -->
+        <ConversationBlock
+          :loaded_conversation="loaded_conversation"
+          :conversation="conversations[active_conversation]"
+          @save_btn_clicked="get_conversations"
+        />
+        <!-- </b-card> -->
+        <!-- <b-card> <PictureBlock /></b-card> -->
       </b-col>
     </b-row>
   </div>
@@ -20,13 +20,13 @@
 <script>
 import GenerateForm from "@/components/GenerateForm.vue";
 import ConversationBlock from "@/components/ConversationBlock.vue";
-import PictureBlock from "@/components/PictureBlock.vue";
+// import PictureBlock from "@/components/PictureBlock.vue";
 
 export default {
   components: {
     GenerateForm,
     ConversationBlock,
-    PictureBlock,
+    // PictureBlock,
   },
   data() {
     return {
