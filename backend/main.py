@@ -22,7 +22,7 @@ GOOGLE_APPLICATION_CREDENTIALS = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"
 ## app and database config
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///language_app.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql+psycopg2://tmdadm:tmd+123@127.0.0.1:5432/tmd67"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.urandom(32)
 db = SQLAlchemy(app)
