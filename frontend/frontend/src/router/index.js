@@ -1,15 +1,16 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import HomeView from "../views/HomeView.vue";
+import GeneratorView from "../views/GeneratorView.vue";
 import AllConversationView from "../views/AllConversationView.vue";
 import CustomListeningView from "../views/CustomListeningView.vue";
+import UserSettingView from "../views/UserSettingView.vue";
 Vue.use(VueRouter);
 
 const routes = [
   {
     path: "/",
-    name: "home",
-    component: HomeView,
+    name: "generator",
+    component: GeneratorView,
   },
   {
     path: "/all-conversations",
@@ -20,6 +21,11 @@ const routes = [
     path: "/custom-listening",
     name: "custom-listening",
     component: CustomListeningView,
+  },
+  {
+    path: "/user-setting",
+    name: "user-setting",
+    component: UserSettingView,
   },
 ];
 

@@ -62,6 +62,7 @@
         </b-btn-group>
       </b-btn-toolbar>
     </b-row>
+    <!-- displayed conversation cards -->
     <b-row class="p-3 bg-white">
       <b-col
         v-for="conversation in displayed_conversation"
@@ -292,6 +293,16 @@ export default {
 };
 </script>
 <style>
+.card {
+  box-shadow: 3px 3px 6px #00000040;
+  border: none !important;
+  overflow: hidden;
+}
+.card-header {
+  background-color: rgb(209, 242, 250) !important;
+}
+</style>
+<style scoped>
 .slide-fade-enter-active {
   transition: all 0.3s ease-out;
 }
@@ -305,11 +316,7 @@ export default {
   transform: translateX(20px);
   opacity: 0;
 }
-.card {
-  box-shadow: 3px 3px 6px #00000040;
-  border: none !important;
-  overflow: hidden;
-}
+
 .card-footer {
   transform: translateY(50%);
   visibility: hidden;
@@ -320,9 +327,7 @@ export default {
   transform: translateY(0);
   visibility: visible;
 }
-.card-header {
-  background-color: rgb(209, 242, 250) !important;
-}
+
 .sticky-row {
   position: sticky;
   top: 0;

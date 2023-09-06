@@ -66,7 +66,7 @@
                   :key="idx"
                 >
                   <b-form-input
-                    class="my-2"
+                    class="my-2 input-answer"
                     v-if="word.trim() !== ''"
                     :ref="`word${idx}`"
                     :style="{
@@ -85,9 +85,9 @@
           <b-button
             variant="primary"
             style="width: 100px"
-            @click="show_btn"
-            v-show="condition == 'show'"
-            >Show</b-button
+            @click="check_btn"
+            v-show="condition == 'check'"
+            >Check</b-button
           >
           <b-button
             variant="primary"
@@ -117,13 +117,14 @@
 export default {
   data() {
     return {
-      condition: "show",
+      condition: "check",
       always_show_text: true,
       is_blurred: true,
       is_important: false,
       is_random: false,
       is_modal_open: false,
       current_idx: 0,
+      input_answer_values: [],
       all_sentences_text:
         "Mijn zus heeft vanochtend een auto gekocht. \nDe kat heeft in de zon gelegen. \nWaar hebben jullie vanavond gegeten? \n Wie heb je in het park gezien?\nWij zijn vandaag thuis gebleven ",
       form_data: {
@@ -145,8 +146,7 @@ export default {
   },
   methods: {
     next_btn() {
-      this.condition = "show";
-      console.log(this.condition);
+      this.condition = "check";
       const sentences = this.all_sentences_text.split("\n");
       if (this.current_idx < sentences.length - 1) {
         this.is_blurred = this.always_show_text ? true : false;
@@ -155,10 +155,16 @@ export default {
         console.log("end");
       }
     },
-    show_btn() {
+    check_btn() {
       this.is_blurred = false;
       this.condition = "next";
-      console.log(this.condition);
+      // const current_sentence = this.testing_sentence.trimmed_sentence_arr;
+      const answer_inputs = document.querySelectorAll(".input-answer");
+      answer_inputs.forEach((input) => {
+        this.input_answer_values.push(input.value);
+      });
+      console.log(this.input_answer_values);
+      console.log(this.testing_sentence.trimmed_sentence_arr);
     },
     speak_text(text, lan_code, rate, volumn) {
       const speech_utterance = new SpeechSynthesisUtterance(text);
@@ -174,6 +180,8 @@ export default {
         if (nextInput) {
           nextInput.focus();
         }
+      } else if (event.key === "Enter") {
+        this.check_btn();
       }
     },
     trim_punctuation(word) {

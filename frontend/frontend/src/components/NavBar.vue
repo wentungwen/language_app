@@ -13,7 +13,7 @@
 
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
-          <b-nav-item>
+          <b-nav-item to="/user-setting">
             <b-icon-person-circle></b-icon-person-circle>
             <strong>
               {{ username ? "Welcome, " + username : "Please login" }}!</strong
