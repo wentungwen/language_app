@@ -49,6 +49,7 @@ export default {
   data() {
     return {
       sidebar_title: "Your conversations",
+      token: this.get_cookie("token"),
     };
   },
   props: {
@@ -87,11 +88,6 @@ export default {
       } else {
         console.log("no token");
       }
-    },
-  },
-  computed: {
-    is_logged_in() {
-      return this.token !== null;
     },
   },
 };

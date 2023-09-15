@@ -5,14 +5,11 @@
         <b-card> <GenerateForm :user_id="user_id" /></b-card>
       </b-col>
       <b-col class="picture-block">
-        <!-- <b-card class="mt-2"> -->
         <ConversationBlock
-          :loaded_conversation="loaded_conversation"
+          :loaded_conversation="computed_loaded_conversation"
           :conversation="conversations[active_conversation]"
           @save_btn_clicked="get_conversations"
         />
-        <!-- </b-card> -->
-        <!-- <b-card> <PictureBlock /></b-card> -->
       </b-col>
     </b-row>
   </div>
@@ -20,13 +17,12 @@
 <script>
 import GenerateForm from "@/components/GenerateForm.vue";
 import ConversationBlock from "@/components/ConversationBlock.vue";
-// import PictureBlock from "@/components/PictureBlock.vue";
+import { eventBus } from "@/main";
 
 export default {
   components: {
     GenerateForm,
     ConversationBlock,
-    // PictureBlock,
   },
   data() {
     return {
@@ -35,11 +31,21 @@ export default {
       loading: false,
       active_conversation: 1,
       conversations: [],
+      local_loaded_conversation: null,
     };
   },
   props: {
     get_conversations: Function,
     loaded_conversation: Object,
+  },
+  computed: {
+    computed_loaded_conversation: function () {
+      if (this.loaded_conversation) {
+        return this.loaded_conversation;
+      } else {
+        return this.local_loaded_conversation;
+      }
+    },
   },
   methods: {
     save_btn_clicked() {
@@ -48,6 +54,9 @@ export default {
   },
   mounted() {
     this.get_conversations();
+    eventBus.$on("generated_data", (data) => {
+      this.local_loaded_conversation = data;
+    });
   },
 };
 </script>

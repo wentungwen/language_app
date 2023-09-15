@@ -47,9 +47,18 @@
         ></b-form-input>
       </b-form-group>
       <!-- Submit Button -->
-      <b-button @submit="submitForm" type="submit" variant="primary w-100"
-        >Generate!</b-button
+      <b-button
+        :variant="is_loading ? 'dark w-100' : 'primary w-100'"
+        @submit="submitForm"
+        type="submit"
       >
+        <template v-if="!is_loading">Generate!</template>
+        <template v-else>
+          <span class="loading-text">
+            Generating <span class="ellipsis">......</span></span
+          >
+        </template>
+      </b-button>
     </b-form>
   </div>
 </template>
@@ -60,6 +69,7 @@ import { eventBus } from "@/main";
 export default {
   data() {
     return {
+      is_loading: false,
       formData: {
         lan_code: "nl",
         topic: "home",
@@ -93,6 +103,7 @@ export default {
           this.generated_data.lan_code = this.formData.lan_code;
           this.generated_data.topic = this.formData.topic;
           eventBus.$emit("generated_data", this.generated_data);
+          this.is_loading = false;
         })
         .catch((err) => {
           console.log(err);
@@ -100,8 +111,31 @@ export default {
     },
     submitForm(evt) {
       evt.preventDefault();
+      this.is_loading = true;
       this.generate_conversation(this.formData);
     },
   },
 };
 </script>
+<style>
+.loading-text {
+  position: relative;
+  white-space: nowrap;
+}
+.ellipsis {
+  display: inline-block;
+  overflow: hidden;
+  width: 0.5rem;
+  animation: ellipsis 3s infinite ease-in-out;
+}
+
+@keyframes ellipsis {
+  0%,
+  100% {
+    width: 0;
+  }
+  50% {
+    width: 2rem;
+  }
+}
+</style>

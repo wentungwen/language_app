@@ -33,6 +33,7 @@ import FooterBlock from "@/components/FooterBlock.vue";
 import NavBar from "@/components/NavBar.vue";
 import SideBar from "@/components/SideBar.vue";
 import axios from "axios";
+// import { BIconSortNumericDown } from "bootstrap-vue";
 export default {
   data() {
     return {
@@ -56,7 +57,7 @@ export default {
       );
     },
     get_conversations() {
-      const token = localStorage.getItem("token");
+      const token = this.get_cookie("token");
       const config = {
         headers: {
           Authorization: token,

@@ -195,8 +195,7 @@ export default {
       }
     },
     save_conversation(conversation) {
-      console.log(conversation);
-      const token = localStorage.getItem("token");
+      const token = this.get_cookie("token");
       const config = {
         headers: {
           Authorization: token,
@@ -283,7 +282,6 @@ export default {
   },
   created() {
     axios.get("http://127.0.0.1:5000/get-all-conversations").then((res) => {
-      console.log(res);
       this.all_conversations = res.data.data.map((conversation) => ({
         ...conversation,
         is_translation_shown: false,

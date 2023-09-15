@@ -27,7 +27,7 @@
           <b-nav-item v-if="!is_logged_in" v-b-modal.modal-login
             >Login</b-nav-item
           >
-          <b-nav-item v-if="is_logged_in" @click="logout_submit(user_id)"
+          <b-nav-item v-if="is_logged_in" @click="logout_submit()"
             >Logout</b-nav-item
           >
         </b-navbar-nav>
@@ -109,6 +109,7 @@ export default {
   name: "NavBar",
   data() {
     return {
+      username: localStorage.getItem("username"),
       routes: [
         { path: "/", name: "Conversation generator", icon: "box" },
         {
@@ -122,8 +123,6 @@ export default {
           icon: "book",
         },
       ],
-      token: localStorage.getItem("token"),
-      username: localStorage.getItem("username"),
       login_warning: null,
       signup_data: {
         username: "",
@@ -145,13 +144,13 @@ export default {
         axios
           .post("http://127.0.0.1:5000/login", this.login_data)
           .then((res) => {
-            localStorage.setItem("token", res.data.token);
+            this.set_cookie("token", res.data.token);
             localStorage.setItem("username", res.data.username);
             window.location.reload();
           })
           .catch((err) => {
             if (err.response && err.response.status === 404) {
-              this.login_warning = "Wrong email or password. Try again!";
+              this.login_warning = "Wrong email or password.";
             } else {
               this.login_warning = "Something went wrong";
             }
@@ -165,37 +164,18 @@ export default {
       axios
         .post("http://127.0.0.1:5000/signup", this.signup_data)
         .then((res) => {
-          localStorage.setItem("token", res.data.token);
+          this.set_cookie("token", res.data.token);
+          localStorage.setItem("username", res.data.username);
           window.location.reload();
         })
         .catch((err) => {
           console.log(err);
         });
     },
-    logout_submit(user_id) {
-      axios
-        .post(
-          "http://127.0.0.1:5000/logout",
-          { user_id: user_id },
-          {
-            headers: {
-              Authorization: this.token,
-            },
-          }
-        )
-        .then(() => {
-          localStorage.removeItem("token");
-          localStorage.removeItem("username");
-          window.location.reload();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    },
-  },
-  computed: {
-    is_logged_in() {
-      return this.token !== null;
+    logout_submit() {
+      localStorage.removeItem("username");
+      this.delete_cookie("token");
+      window.location.reload();
     },
   },
 };

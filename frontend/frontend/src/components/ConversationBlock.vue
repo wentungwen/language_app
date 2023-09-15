@@ -42,17 +42,10 @@
               ></b-form-input>
             </b-button>
           </b-button-group>
-          <!-- Alert -->
-          <b-alert :show="is_alert_shown" class="m-3 alert-warning"
-            >It is fastest!</b-alert
-          >
         </b-col>
       </b-card>
     </b-row>
     <b-row>
-      <!-- action alerts -->
-      <b-alert :show="is_copied" class="m-3 alert-success">Copied!</b-alert>
-      <b-alert :show="is_saved" class="m-3 alert-success">Saved!</b-alert>
       <b-card class="mb-3 content-card">
         <b-col cols="12" class="d-flex justify-content-between mb-3">
           <!-- txt and pic view switch  -->
@@ -74,7 +67,10 @@
               </b-button>
             </b-button-group>
           </b-button-toolbar>
-
+          <!-- Alert -->
+          <b-alert :show="is_alert_shown" class="m-3 alert-warning"
+            >It is fastest!</b-alert
+          >
           <!-- conversation button group block -->
           <Transition name="slide-fade">
             <b-button-toolbar v-if="!is_carousel_shown">
@@ -108,6 +104,10 @@
           </Transition>
         </b-col>
         <hr />
+        <!-- action alerts -->
+        <b-alert :show="is_copied" class="m-3 alert-success">Copied!</b-alert>
+        <b-alert :show="is_saved" class="m-3 alert-success">Saved!</b-alert>
+
         <!-- conversation editing block -->
         <Transition name="slide-fade">
           <b-col cols="12" v-if="!is_carousel_shown">
@@ -138,15 +138,12 @@
                   <b-badge variant="info mr-1">{{ msg.sender }}</b-badge>
                   {{ msg.content }}
                 </p>
-                <!-- <b-button
-                  type="button"
-                  variant="outline-dark"
-                  @click="keep_generate_btn"
-                >
-                  Keep Generating 5 sentencesss
-                </b-button> -->
               </div>
-              <div v-else-if="received_data && received_data.conversations">
+              <div
+                v-else-if="
+                  received_data && received_data.conversations.length > 0
+                "
+              >
                 <p v-for="(msg, idx) in received_data.conversations" :key="idx">
                   <b-badge variant="info mr-1">{{ msg.sender }}</b-badge>
                   {{ msg.content }}
@@ -157,7 +154,14 @@
                   @click="keep_generate_btn"
                   class="w-100 my-2"
                 >
-                  Keep Generating 5 sentencesss
+                  <template v-if="!is_loading"
+                    >Keep Generating sentences!</template
+                  >
+                  <template v-else>
+                    <span class="loading-text">
+                      Generating <span class="ellipsis">......</span></span
+                    >
+                  </template>
                 </b-button>
               </div>
               <div
@@ -177,44 +181,20 @@
                   variant="outline-dark"
                   @click="keep_generate_btn"
                 >
-                  Keep Generating 5 sentencesss
+                  <template v-if="!is_loading"
+                    >Keep Generating sentences!</template
+                  >
+                  <template v-else>
+                    <span class="loading-text">
+                      Generating <span class="ellipsis">......</span></span
+                    >
+                  </template>
                 </b-button>
               </div>
               <div v-else>
                 <p class="text-secondary">Please generate conversations</p>
               </div>
             </div>
-            <!-- <div v-else ref="copy_conversations">
-            <div v-if="is_translation_shown">
-              <p
-                v-for="(msg, idx) in translated_conversations.conversations"
-                :key="idx"
-              >
-                <b-badge variant="info mr-1">{{ msg.sender }}</b-badge>
-                {{ msg.content }}
-              </p>
-            </div>
-            <div v-else>
-              <div v-if="received_data">
-                <p v-for="(msg, idx) in received_data.conversations" :key="idx">
-                  <b-badge variant="info mr-1">{{ msg.sender }}</b-badge>
-                  {{ msg.content }}
-                </p>
-              </div>
-              <div v-else-if="this.loaded_conversation">
-                <p
-                  v-for="(msg, idx) in loaded_conversation.conversations"
-                  :key="idx"
-                >
-                  <b-badge variant="info mr-1">{{ msg.sender }}</b-badge>
-                  {{ msg.content }}
-                </p>
-              </div>
-              <div v-else>
-                <p class="text-secondary">Please generate conversations</p>
-              </div>
-            </div>
-          </div> -->
           </b-col>
         </Transition>
         <!-- conversation end -->
@@ -247,12 +227,13 @@
 <script>
 import { eventBus } from "@/main";
 import axios from "axios";
+
 export default {
   data() {
     return {
+      is_loading: false,
       is_carousel_shown: false,
       // conversation
-      is_logged_in: false,
       is_copied: false,
       is_saved: false,
       is_translation_shown: false,
@@ -275,27 +256,12 @@ export default {
         A: require("../assets/person_a.png"),
         B: require("../assets/person_b.png"),
       },
+      // conversation editing
       received_data: {
         lan_code: "nl",
         translated_conversations: [],
-        conversations: [
-          {
-            content: "het meisje.",
-            sender: "A",
-          },
-          {
-            content: "Volgens de man.",
-            sender: "B",
-          },
-          {
-            content: "2. het meisje is klein.",
-            sender: "A",
-          },
-          {
-            content: "2. Volgens de man is grote.",
-            sender: "B",
-          },
-        ],
+        topic: "defaults",
+        conversations: [],
       },
     };
   },
@@ -309,7 +275,24 @@ export default {
   },
   methods: {
     keep_generate_btn() {
-      console.log("clicked");
+      this.is_loading = true;
+      const payload = {
+        conversations: this.received_data.conversations.slice(-2),
+        lan_code: this.received_data.lan_code,
+        topic: this.received_data.topic,
+      };
+      axios
+        .post(`http://127.0.0.1:5000/generate-five`, payload)
+        .then((res) => {
+          const new_conversation_arr = JSON.parse(res.data);
+          new_conversation_arr.forEach((conv) => {
+            this.received_data.conversations.push(conv);
+          });
+          this.is_loading = false;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
     // picture block
     adjust_speed(request) {
@@ -343,7 +326,18 @@ export default {
         i++
       ) {
         if (this.sliding) {
-          await this.play_one_slide(i);
+          const current_content = this.received_data.conversations[i].content;
+          const lan_code = this.received_data.lan_code;
+          const speech_speed = this.speech_speed;
+          const speech_volumn = this.volumn;
+
+          await this.speak_text(
+            current_content,
+            lan_code,
+            speech_speed,
+            speech_volumn
+          );
+
           this.current_slide++;
         } else {
           this.current_slide = 0;
@@ -353,29 +347,14 @@ export default {
       this.sliding = false;
     },
 
-    async play_one_slide(i) {
-      const current_content = this.received_data.conversations[i].content;
-      const lan_code = this.received_data.lan_code;
-      const speech_speed = this.speech_speed;
-      const speech_time = this.calculate_speech_time(current_content, lan_code);
-      const speech_volumn = this.volumn;
-      this.speak_text(current_content, lan_code, speech_speed, speech_volumn);
-      // Wait for the speech to finish
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, speech_time);
-      });
-    },
-
-    calculate_speech_time(content, lan_code) {
-      let characters_per_second = 7.5;
-      if (lan_code === "ja") {
-        characters_per_second = 4;
-      }
-      const speech_time = (content.length / characters_per_second) * 1000;
-      return speech_time;
-    },
+    // calculate_speech_time(content, lan_code) {
+    //   let characters_per_second = 7.5;
+    //   if (lan_code === "ja") {
+    //     characters_per_second = 4;
+    //   }
+    //   const speech_time = (content.length / characters_per_second) * 1000;
+    //   return speech_time;
+    // },
 
     stop_slides_btn() {
       this.current_slide = 0;
@@ -387,11 +366,15 @@ export default {
       speech_utterance.lang = languageCode;
       speech_utterance.rate = rate;
       speech_utterance.volume = volumn;
-      window.speechSynthesis.speak(speech_utterance);
+      speech_utterance.addEventListener("end", () => {});
+      return new Promise((resolve) => {
+        speech_utterance.addEventListener("end", resolve);
+        window.speechSynthesis.speak(speech_utterance);
+      });
     },
     // conversation
     save_btn() {
-      const token = localStorage.getItem("token");
+      const token = this.get_cookie("token");
       const config = {
         headers: {
           Authorization: token,
@@ -481,28 +464,6 @@ export default {
         eventBus.$emit("received_data", this.received_data);
       }
     },
-  },
-  mounted() {
-    eventBus.$on("received_data", (data) => {
-      this.received_data = data;
-    });
-    eventBus.$on("generated_data", (data) => {
-      if (data) {
-        this.received_data = data;
-        this.received_data.translated_conversations =
-          this.translated_conversations;
-
-        eventBus.$emit("received_data", this.received_data);
-        this.translated_conversations = [];
-        this.edited_conversations = [];
-        this.is_editing = false;
-      }
-    });
-  },
-  created() {
-    if (localStorage.getItem("token")) {
-      this.is_logged_in = true;
-    }
   },
 };
 </script>

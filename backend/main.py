@@ -22,7 +22,9 @@ GOOGLE_APPLICATION_CREDENTIALS = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"
 ## app and database config
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql+psycopg2://tmdadm:tmd+123@127.0.0.1:5432/tmd67"
+app.config[
+    "SQLALCHEMY_DATABASE_URI"
+] = "postgresql+psycopg2://tmdadm:tmd+123@127.0.0.1:5432/tmd67"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.urandom(32)
 db = SQLAlchemy(app)
@@ -121,19 +123,23 @@ def login():
 def signup():
     posted_data = request.get_json()
     token = secrets.token_hex(16)
+    username = posted_data["username"]
+    email = posted_data["email"]
+    password = posted_data["password"]
     user = User(
-        username=posted_data["username"],
-        email=posted_data["email"],
-        password=posted_data["password"],
+        username=username,
+        email=email,
+        password=password,
     )
     db.session.add(user)
     db.session.commit()
-    return jsonify({"message": "User created successfully", "token": token})
-
-
-@app.route("/logout", methods=["POST"])
-def logout():
-    return jsonify({"message": "Logged out successfully"})
+    return jsonify(
+        {
+            "message": "User created successfully",
+            "token": token,
+            "username": user.username,
+        }
+    )
 
 
 @app.route("/delete-conversation", methods=["DELETE"])
@@ -159,25 +165,46 @@ def delete_conversation():
 
 @app.route("/save", methods=["POST"])
 def save():
+    # TODO: check if no conversation_id then saved as a new one
     token = request.headers.get("Authorization")
     if not token:
         return jsonify({"message": "Missing token"}), 401
     user_id = decode_token(token)
     saved_conversations = request.get_json()["data"]
-    new_conversation = Conversation(
-        date=str(datetime.now()),
-        topic=saved_conversations["topic"],
-        lan_code=saved_conversations["lan_code"],
-        user_id=user_id,
-    )
-    for conversation in saved_conversations["conversations"]:
-        content = conversation["content"]
-        sender = conversation["sender"]
-        new_conversation.contents.append(Content(content=content, sender=sender))
-    db.session.add(new_conversation)
-    db.session.commit()
 
-    return jsonify({"message": "Saved successfully"}), 200
+    if "conversation_id" in saved_conversations:
+        conversation_id = saved_conversations["conversation_id"]
+        original_conversation = Conversation.query.filter_by(
+            conversation_id=conversation_id
+        ).first()
+        if original_conversation:
+            original_conversation.contents = []
+            for conversation in saved_conversations["conversations"]:
+                content = conversation["content"]
+                sender = conversation["sender"]
+                original_conversation.contents.append(
+                    Content(content=content, sender=sender)
+                )
+            db.session.commit()
+            return jsonify({"message": "Saved successfully"}), 200
+        else:
+            return jsonify({"message": "Conversation not found"}), 404
+
+    else:
+        new_conversation = Conversation(
+            date=str(datetime.now()),
+            topic=saved_conversations["topic"],
+            lan_code=saved_conversations["lan_code"],
+            user_id=user_id,
+        )
+        for conversation in saved_conversations["conversations"]:
+            content = conversation["content"]
+            sender = conversation["sender"]
+            new_conversation.contents.append(Content(content=content, sender=sender))
+        db.session.add(new_conversation)
+        db.session.commit()
+
+        return jsonify({"message": "Saved successfully"}), 200
 
 
 @app.route("/translate", methods=["GET", "POST"])
@@ -267,23 +294,16 @@ def generate_conversation():
     return jsonify(response)
 
 
-def add_content_to_conversation(conversation_id, content, sender):
-    """Testing: Adds a content to a conversation table"""
-    conversation = Conversation.query.get(conversation_id)
-    if not conversation:
-        return False
-    new_content = Content(content=content, sender=sender, conversation=conversation)
-    db.session.add(new_content)
-    db.session.commit()
-    return True
-
-
-@app.route("/add_content")
-def add_content_route():
-    # with app.app_context():
-    #     add_content_to_conversation(2, "How are you?", "A")
-    #     add_content_to_conversation(2, "How are you?", "A")
-    return "Content added successfully"
+@app.route("/generate-five", methods=["POST"])
+def generate_five_conversation():
+    posted_data = request.get_json()
+    lan_code = posted_data["lan_code"]
+    topic = posted_data["topic"]
+    sentence_num = 5
+    level = "similar"
+    response = generate_gpt_conversation(lan_code, topic, sentence_num, level)
+    print(response)
+    return jsonify(response)
 
 
 def generate_token(user_id):
@@ -341,6 +361,31 @@ def generate_gpt_conversation(lan_code, topic, sentence_num, level):
         print(
             f"Request failed with status code: {str(response.status_code), response.text}"
         )
+
+
+def add_content_to_conversation(conversation_id, content, sender):
+    """Testing: Adds a content to a conversation table"""
+    conversation = Conversation.query.get(conversation_id)
+    if not conversation:
+        return False
+    new_content = Content(content=content, sender=sender, conversation=conversation)
+    db.session.add(new_content)
+    db.session.commit()
+    return True
+
+
+@app.route("/add_content")
+def add_content_route():
+    with app.app_context():
+        # new_user = User(username="B", password="B", email="B")
+        # db.session.add(new_user)
+        # db.session.commit()
+        # new_conversation = Conversation(
+        #     date
+        # )
+        add_content_to_conversation(1, "How are you?", "A")
+        add_content_to_conversation(1, "How are you?", "A")
+    return "Content added successfully"
 
 
 if __name__ == "__main__":

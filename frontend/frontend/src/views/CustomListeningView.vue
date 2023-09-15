@@ -163,7 +163,6 @@ export default {
       answer_inputs.forEach((input) => {
         this.input_answer_values.push(input.value);
       });
-      console.log(this.input_answer_values);
       console.log(this.testing_sentence.trimmed_sentence_arr);
     },
     speak_text(text, lan_code, rate, volumn) {
