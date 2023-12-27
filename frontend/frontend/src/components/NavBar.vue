@@ -5,7 +5,7 @@
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav v-for="route in routes" :key="route.path">
-          <b-nav-item :to="route.path" class="nav-decoration"
+          <b-nav-item :to="route.path" class="nav-decoration mr-3"
             ><b-icon :icon="route.icon" class="mr-1"></b-icon
             >{{ route.name }}</b-nav-item
           >
@@ -111,15 +111,15 @@ export default {
     return {
       username: localStorage.getItem("username"),
       routes: [
-        { path: "/", name: "Conversation generator", icon: "box" },
+        { path: "/", name: "Generator", icon: "box" },
         {
           path: "/all-conversations",
-          name: "See other's conversation",
+          name: "Explore",
           icon: "people",
         },
         {
           path: "/custom-listening",
-          name: "Custom Listening Test",
+          name: "Listening Test",
           icon: "book",
         },
       ],
@@ -181,6 +181,9 @@ export default {
 };
 </script>
 <style>
+/* .nav-decoration{
+  margin-
+} */
 .nav-decoration a {
   position: relative;
   display: inline-block;
@@ -201,7 +204,7 @@ export default {
 
 .nav-decoration a:hover::after,
 .nav-decoration a.router-link-exact-active::after {
-  transform: scaleX(0.5);
+  transform: scaleX(1);
 }
 .nav-decoration a.router-link-exact-active {
   color: #ffffff !important;

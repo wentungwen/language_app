@@ -8,7 +8,7 @@
           <b-button-group
             role="group"
             aria-label="video-control"
-            size="lg"
+            size="md"
             class="button-group-fill align-items-center"
           >
             <b-button
@@ -107,6 +107,11 @@
         <!-- action alerts -->
         <b-alert :show="is_copied" class="m-3 alert-success">Copied!</b-alert>
         <b-alert :show="is_saved" class="m-3 alert-success">Saved!</b-alert>
+        <b-alert
+          :show="is_translating && !received_data.translated_conversations"
+          class="m-3 alert-primary"
+          >Translating...</b-alert
+        >
 
         <!-- conversation editing block -->
         <Transition name="slide-fade">
@@ -130,9 +135,14 @@
               >
             </div>
             <div v-else ref="copy_conversations">
-              <div v-if="is_translation_shown && translated_conversations">
+              <div
+                v-if="
+                  is_translation_shown && received_data.translated_conversations
+                "
+              >
                 <p
-                  v-for="(msg, idx) in translated_conversations.conversations"
+                  v-for="(msg, idx) in received_data.translated_conversations
+                    .conversations"
                   :key="idx"
                 >
                   <b-badge variant="info mr-1">{{ msg.sender }}</b-badge>
@@ -178,8 +188,9 @@
                 </p>
                 <b-button
                   type="button"
-                  variant="outline-dark"
+                  variant="outline-primary"
                   @click="keep_generate_btn"
+                  class="w-100 my-2"
                 >
                   <template v-if="!is_loading"
                     >Keep Generating sentences!</template
@@ -218,7 +229,7 @@
             ></b-carousel-slide>
           </b-carousel>
         </Transition>
-        <!-- picture block end -->
+        <!-- carousel block end -->
       </b-card>
     </b-row>
   </div>
@@ -236,11 +247,11 @@ export default {
       // conversation
       is_copied: false,
       is_saved: false,
+      is_translating: false,
       is_translation_shown: false,
       is_editing: false,
       translate_to_lan_code: "en",
       edited_conversations: [],
-      translated_conversations: [],
       // picture block
       MIN_SPEED: 0.6,
       MAX_SPEED: 1.0,
@@ -347,15 +358,6 @@ export default {
       this.sliding = false;
     },
 
-    // calculate_speech_time(content, lan_code) {
-    //   let characters_per_second = 7.5;
-    //   if (lan_code === "ja") {
-    //     characters_per_second = 4;
-    //   }
-    //   const speech_time = (content.length / characters_per_second) * 1000;
-    //   return speech_time;
-    // },
-
     stop_slides_btn() {
       this.current_slide = 0;
       this.sliding = false;
@@ -406,27 +408,33 @@ export default {
       this.received_data.conversations = this.edited_conversations;
       this.is_editing = false;
       this.is_translation_shown = false;
-      this.translated_conversations = [];
+      this.received_data.translated_conversations = NaN;
     },
     translate_btn(received_data) {
-      const lan_code = received_data.lan_code;
-      const conversations = received_data.conversations;
-      const translate_to_lan_code = this.translate_to_lan_code;
-
-      const payload = {
-        lan_code,
-        conversations,
-        translate_to_lan_code,
-      };
-      axios
-        .post("http://127.0.0.1:5000/translate", payload)
-        .then((res) => {
-          this.is_translation_shown = !this.is_translation_shown;
-          this.translated_conversations = res.data;
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      if (
+        !this.received_data.translated_conversations ||
+        this.received_data.translated_conversations.length == 0
+      ) {
+        this.is_translating = true;
+        const lan_code = received_data.lan_code;
+        const conversations = received_data.conversations;
+        const translate_to_lan_code = this.translate_to_lan_code;
+        const payload = {
+          lan_code,
+          conversations,
+          translate_to_lan_code,
+        };
+        axios
+          .post("http://127.0.0.1:5000/translate", payload)
+          .then((res) => {
+            this.received_data.translated_conversations = res.data;
+            this.is_translating = !this.is_translating;
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+      this.is_translation_shown = !this.is_translation_shown;
     },
     copy_btn() {
       const conversationsDiv = this.$refs.copy_conversations;

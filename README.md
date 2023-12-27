@@ -8,6 +8,6 @@ pip install -r backend/requirements.txt
 
 # Run a project
 ```shell
-source var.sh
+source ../var.sh
 python main.py
 ```

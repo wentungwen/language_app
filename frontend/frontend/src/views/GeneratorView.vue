@@ -1,10 +1,10 @@
 <template>
   <div>
     <b-row class="justify-content-center">
-      <b-col class="generate-form" cols="3">
+      <b-col class="generate-form col-12 col-md-3 mb-3">
         <b-card> <GenerateForm :user_id="user_id" /></b-card>
       </b-col>
-      <b-col class="picture-block">
+      <b-col class="picture-block col-12 col-md">
         <ConversationBlock
           :loaded_conversation="computed_loaded_conversation"
           :conversation="conversations[active_conversation]"
