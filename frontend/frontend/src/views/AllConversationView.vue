@@ -106,20 +106,22 @@
             <!-- button here -->
 
             <b-button
-              class="mr-2 btn-secondary"
+              class="mr-2 btn-secondary btn-sm"
               @click="copy_btn(conversation)"
             >
               <b-icon-clipboard></b-icon-clipboard>
               Copy</b-button
             >
             <b-button
-              class="mr-2 btn-secondary"
+              class="mr-2 btn-secondary btn-sm"
               @click="translate_btn(conversation)"
             >
               <b-icon-translate></b-icon-translate>
               Translate</b-button
             >
-            <b-button variant="primary" @click="save_conversation(conversation)"
+            <b-button
+              variant="primary btn-sm"
+              @click="save_conversation(conversation)"
               >Save</b-button
             >
           </template>
@@ -300,7 +302,7 @@ export default {
   background-color: rgb(209, 242, 250) !important;
 }
 </style>
-<style scoped>
+<style scoped lang="scss">
 .slide-fade-enter-active {
   transition: all 0.3s ease-out;
 }
@@ -321,8 +323,18 @@ export default {
   transition: transform 0.3s;
 }
 
+.card {
+  overflow: hidden;
+  height: 300px;
+  &:hover {
+    box-shadow: 1rem 1rem 3rem rgba(0, 0, 0, 0.2);
+    height: 100%;
+    overflow: visible;
+  }
+}
+
 .card:hover .card-footer {
-  transform: translateY(0);
+  transform: translateY(0%);
   visibility: visible;
 }
 

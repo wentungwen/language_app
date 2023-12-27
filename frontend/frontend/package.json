@@ -1,9 +1,9 @@
 {
-  "name": "frontend",
+  "name": "language_learner",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve --port 8080",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
@@ -14,6 +14,9 @@
     "bootstrap-icons": "^1.10.5",
     "bootstrap-vue": "^2.23.1",
     "core-js": "^3.8.3",
+    "d3": "^4.13.0",
+    "sass": "^1.68.0",
+    "sass-loader": "^13.3.2",
     "vue": "^2.6.14",
     "vue-router": "^3.5.1"
   },

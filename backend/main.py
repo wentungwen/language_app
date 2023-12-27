@@ -29,7 +29,6 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.urandom(32)
 db = SQLAlchemy(app)
 
-
 class User(db.Model):
     __tablename__ = "users"
     user_id = Column(Integer, primary_key=True)
@@ -227,10 +226,12 @@ def translate_to_en():
 @app.route("/get-conversations", methods=["GET"])
 def get_conversations():
     token = request.headers.get("Authorization")
+    print("token:", token)
     if not token:
         return jsonify({"message": "Missing token"}), 401
     else:
         user_id = decode_token(token)
+        print("user_id:", user_id)
         user = User.query.filter_by(user_id=user_id).first()
         if not user:
             return jsonify({"message": "User not found"}), 404
