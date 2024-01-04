@@ -11,21 +11,33 @@ const routes = [
     path: "/",
     name: "generator",
     component: GeneratorView,
+    meta: {
+      ShowSidebar: true,
+    },
   },
   {
     path: "/all-conversations",
     name: "all-conversations",
     component: AllConversationView,
+    meta: {
+      ShowSidebar: false,
+    },
   },
   {
     path: "/custom-listening",
     name: "custom-listening",
     component: CustomListeningView,
+    meta: {
+      ShowSidebar: true,
+    },
   },
   {
     path: "/user-setting",
     name: "user-setting",
     component: UserSettingView,
+    meta: {
+      ShowSidebar: true,
+    },
   },
 ];
 

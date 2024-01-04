@@ -1,9 +1,9 @@
 <template>
   <div>
-    <b-button variant="primary" v-b-toggle.sidebar-1 class="m-2 mr-0">
+    <b-button variant="primary" v-b-toggle.sidebar-2 class="m-2 mr-0">
       <b-icon-list></b-icon-list
     ></b-button>
-    <b-sidebar id="sidebar-1" :title="sidebar_title" shadow>
+    <b-sidebar id="sidebar-2" :title="sidebar_title" shadow>
       <b-col class="flex-grow-1">
         <div v-if="is_logged_in">
           <ul class="nav nav-pills flex-column mb-auto">
