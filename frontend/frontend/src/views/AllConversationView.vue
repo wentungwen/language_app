@@ -34,42 +34,41 @@
             :src="require('@/assets/nothing.png')"
             style="max-width: 300px"
           ></b-img>
-          <hr />
-          <!-- <h2>{{ form_data.lan_code }}</h2> -->
-          <h2>{{ form_data.lan_text }}</h2>
         </b-row>
       </b-col>
     </b-row>
-    <!-- conversation cards -->
-    <b-row class="p-3 bg-white">
-      <b-btn-toolbar aria-label="Toolbar with button groups">
-        <b-btn-group role="group" aria-label="view-group">
-          <b-button variant="dark" disabled>view</b-button>
-          <b-button
-            variant="outline-dark"
-            :disabled="col_view < 3"
-            @click="adjust_col_view(-1)"
-          >
-            <b-icon-dash></b-icon-dash>
-          </b-button>
-          <b-button
-            variant="outline-dark"
-            :disabled="col_view > 5"
-            @click="adjust_col_view(1)"
-          >
-            <b-icon-plus></b-icon-plus>
-          </b-button>
-        </b-btn-group>
-      </b-btn-toolbar>
+    <!-- view control start -->
+    <b-row class="p-3 bg-white" v-if="!is_filtered_alert_shown">
+      <b-col
+        ><b-btn-toolbar aria-label="Toolbar with button groups">
+          <b-btn-group role="group" aria-label="view-group">
+            <b-button variant="dark" disabled>view</b-button>
+            <b-button
+              variant="outline-dark"
+              :disabled="col_view < 3"
+              @click="adjust_col_view(-1)"
+            >
+              <b-icon-dash></b-icon-dash>
+            </b-button>
+            <b-button
+              variant="outline-dark"
+              :disabled="col_view > 5"
+              @click="adjust_col_view(1)"
+            >
+              <b-icon-plus></b-icon-plus>
+            </b-button>
+          </b-btn-group> </b-btn-toolbar
+      ></b-col>
     </b-row>
+    <!-- view control end -->
     <!-- displayed conversation cards -->
-    <b-row class="p-3 bg-white">
+    <b-row class="p-3 bg-white" v-if="!is_filtered_alert_shown">
       <b-col
         v-for="conversation in displayed_conversation"
         :key="conversation.conversation_id"
         :cols="col_view"
       >
-        <b-card class="mb-4">
+        <b-card class="mb-4" @click="open_card_modal(conversation)">
           <template #header>
             <div class="d-flex justify-content-between align-items-center">
               <h4 class="mt-2">{{ conversation.topic }}</h4>
@@ -85,49 +84,55 @@
                 :key="index"
               >
                 <p>{{ message.sender }}: {{ message.content }}</p>
-                <Transition name="slide-fade">
-                  <div v-if="conversation.is_translation_shown">
-                    <p
-                      class="badge bg-secondary"
-                      v-html="decode_HTML_entities(message.translation)"
-                    ></p>
-                  </div>
-                </Transition>
               </div>
             </div>
-          </template>
-          <template #footer>
-            <!-- action alerts -->
-            <b-alert
-              :show="is_copied && copied_index === conversation.conversation_id"
-              class="m-3 alert-success"
-              >Copied!</b-alert
-            >
-            <!-- button here -->
-
-            <b-button
-              class="mr-2 btn-secondary btn-sm"
-              @click="copy_btn(conversation)"
-            >
-              <b-icon-clipboard></b-icon-clipboard>
-              Copy</b-button
-            >
-            <b-button
-              class="mr-2 btn-secondary btn-sm"
-              @click="translate_btn(conversation)"
-            >
-              <b-icon-translate></b-icon-translate>
-              Translate</b-button
-            >
-            <b-button
-              variant="primary btn-sm"
-              @click="save_conversation(conversation)"
-              >Save</b-button
-            >
           </template>
         </b-card>
       </b-col>
     </b-row>
+    <!-- modal start -->
+    <b-modal id="conv-modal" v-model="is_popup_open" hide-footer>
+      <template #modal-title>
+        {{ modal_conversation.topic }}
+      </template>
+      <!-- message start -->
+      <div
+        v-for="(message, index) in modal_conversation.conversations"
+        :key="index"
+      >
+        <Transition name="slide-fade">
+          <div>
+            <p>{{ message.sender }}: {{ message.content }}</p>
+            <p
+              class="badge bg-secondary"
+              v-if="modal_conversation.is_translation_shown"
+              v-html="decode_HTML_entities(message.translation)"
+            ></p>
+          </div>
+        </Transition>
+      </div>
+      <!-- messages end -->
+
+      <!-- action alerts -->
+      <b-alert :show="is_copied" class="m-3 alert-success">Copied!</b-alert>
+      <!-- buttons start-->
+      <b-button
+        class="mr-2 btn-secondary btn-sm"
+        @click="copy_btn(modal_conversation)"
+      >
+        <b-icon-clipboard></b-icon-clipboard>
+        Copy</b-button
+      >
+      <b-button
+        class="mr-2 btn-secondary btn-sm"
+        @click="translate_btn(modal_conversation)"
+      >
+        <b-icon-translate></b-icon-translate>
+        Translate</b-button
+      >
+      <!-- button end -->
+    </b-modal>
+    <!-- modal end -->
   </b-container>
 </template>
 <script>
@@ -141,11 +146,12 @@ export default {
   data() {
     return {
       col_view: 3,
-      copied_index: null,
       is_copied: false,
       is_translation_shown: false,
       translated_conversations: [],
       all_conversations: [],
+      is_popup_open: false,
+      modal_conversation: {},
       language_options: [
         { value: "nl", text: "Dutch" },
         { value: "es", text: "Spanish" },
@@ -161,9 +167,12 @@ export default {
     };
   },
   methods: {
+    open_card_modal(conv) {
+      this.is_popup_open = true;
+      this.modal_conversation = conv;
+    },
     adjust_col_view(num) {
       this.col_view += num;
-      console.log(this.col_view);
     },
     filter_conversation() {
       this.is_filtered_alert_shown = false;
@@ -196,41 +205,21 @@ export default {
         this.is_filtered_alert_shown = true;
       }
     },
-    save_conversation(conversation) {
-      const token = this.get_cookie("token");
-      const config = {
-        headers: {
-          Authorization: token,
-        },
-      };
-      const payload = {
-        data: conversation,
-      };
-      axios.post("http://127.0.0.1:5000/save", payload, config).then((res) => {
-        console.log(res);
-      });
-    },
     decode_HTML_entities(text) {
       const element = document.createElement("textarea");
       element.innerHTML = text;
       return element.value;
     },
     copy_btn(conversation) {
-      const tempElement = document.createElement("textarea");
-      this.copied_index = conversation.conversation_id;
       let text = "";
       for (let i = 0; i < conversation.conversations.length; i++) {
-        text += conversation.conversations[i].content;
+        text += `${conversation.conversations[i].content}\n`;
       }
-      tempElement.value = text;
-      document.body.appendChild(tempElement);
-      tempElement.select();
-      document.execCommand("copy");
-      document.body.removeChild(tempElement);
+      navigator.clipboard.writeText(text);
       this.is_copied = true;
       setTimeout(() => {
         this.is_copied = false;
-      }, 2000);
+      }, 1000);
     },
     translate_btn(conversation) {
       if (conversation.conversations[0].translation) {
@@ -238,7 +227,7 @@ export default {
       } else {
         const lan_code = conversation.lan_code;
         const conversations = conversation.conversations;
-        const translate_to_lan_code = this.translate_to_lan_code;
+        const translate_to_lan_code = conversation.lan_code;
         const payload = {
           lan_code,
           conversations,
@@ -318,7 +307,6 @@ export default {
 }
 
 .card-footer {
-  transform: translateY(50%);
   visibility: hidden;
   transition: transform 0.3s;
 }
@@ -328,14 +316,16 @@ export default {
   height: 300px;
   &:hover {
     box-shadow: 1rem 1rem 3rem rgba(0, 0, 0, 0.2);
-    height: 100%;
-    overflow: visible;
+    cursor: pointer;
+    .card-footer {
+      visibility: visible;
+    }
   }
 }
-
-.card:hover .card-footer {
-  transform: translateY(0%);
-  visibility: visible;
+.card_extend {
+  overflow: visible;
+  height: fit-content;
+  min-height: 300px;
 }
 
 .sticky-row {

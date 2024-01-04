@@ -40,10 +40,10 @@ export default {
   },
   computed: {
     computed_loaded_conversation: function () {
-      if (this.loaded_conversation) {
-        return this.loaded_conversation;
-      } else {
+      if (this.local_loaded_conversation) {
         return this.local_loaded_conversation;
+      } else {
+        return this.loaded_conversation;
       }
     },
   },

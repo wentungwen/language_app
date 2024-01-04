@@ -10,13 +10,13 @@
         ></b-img>
       </b-row>
       <b-row v-else>
-        <b-col class="col-auto">
-          <SideBar
-            :conversations="conversations"
-            :user_id="user_id"
-            :get_conversations="get_conversations"
-            @load_conversation="load_conversation"
-        /></b-col>
+        <SideBar
+          :conversations="conversations"
+          :user_id="user_id"
+          :get_conversations="get_conversations"
+          @load_conversation="load_conversation"
+          v-if="$route.meta.ShowSidebar"
+        />
         <RouterView
           :conversations="conversations"
           :loaded_conversation="loaded_conversation"
@@ -33,7 +33,6 @@ import FooterBlock from "@/components/FooterBlock.vue";
 import NavBar from "@/components/NavBar.vue";
 import SideBar from "@/components/SideBar.vue";
 import axios from "axios";
-// import { BIconSortNumericDown } from "bootstrap-vue";
 export default {
   data() {
     return {
@@ -52,9 +51,11 @@ export default {
   },
   methods: {
     load_conversation(conversation_id) {
-      this.loaded_conversation = this.conversations.find(
-        (conversation) => conversation.conversation_id === conversation_id
-      );
+      if (this.loaded_conversation) {
+        this.loaded_conversation = this.conversations.find(
+          (conversation) => conversation.conversation_id === conversation_id
+        );
+      }
     },
     get_conversations() {
       const token = this.get_cookie("token");
@@ -68,6 +69,7 @@ export default {
         .then((res) => {
           if (res.data) {
             this.conversations = res.data["data"];
+            this.loaded_conversation = this.conversations[0];
           } else {
             this.conversations = [];
           }

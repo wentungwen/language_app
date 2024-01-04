@@ -134,7 +134,6 @@ export default {
         .attr("class", "scale-icon")
         .style("cursor", "pointer")
         .on("mouseover", function (d, i) {
-          console.log("d", d, i);
           d3.select(`.scale rect:nth-child(${i + 2})`).attr(
             "fill",
             "rgba(15, 42, 22)"
