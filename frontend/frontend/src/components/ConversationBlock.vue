@@ -237,6 +237,7 @@
 
 <script>
 import { eventBus } from "@/main";
+import { translate_conversations } from "@/utils/translateUtil";
 import axios from "axios";
 
 export default {
@@ -250,7 +251,6 @@ export default {
       is_translating: false,
       is_translation_shown: false,
       is_editing: false,
-      translate_to_lan_code: "en",
       edited_conversations: [],
       // picture block
       MIN_SPEED: 0.6,
@@ -409,8 +409,10 @@ export default {
       this.is_editing = false;
       this.is_translation_shown = false;
       this.received_data.translated_conversations = NaN;
+      // TODO: figure out NaN
     },
-    translate_btn(received_data) {
+    async translate_btn(received_data) {
+      // TODO: the translation didn't update after extending
       if (
         !this.received_data.translated_conversations ||
         this.received_data.translated_conversations.length == 0
@@ -418,21 +420,21 @@ export default {
         this.is_translating = true;
         const lan_code = received_data.lan_code;
         const conversations = received_data.conversations;
-        const translate_to_lan_code = this.translate_to_lan_code;
-        const payload = {
-          lan_code,
-          conversations,
-          translate_to_lan_code,
-        };
-        axios
-          .post("http://127.0.0.1:5000/translate", payload)
-          .then((res) => {
-            this.received_data.translated_conversations = res.data;
-            this.is_translating = !this.is_translating;
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+        const res = await translate_conversations(lan_code, conversations);
+        console.log(typeof conversations, conversations);
+        //         [
+        //     {
+        //         "content": "Hoe is je huis?",
+        //         "sender": "A"
+        //     },
+        //     {
+        //         "content": "Mijn huis is geweldig!",
+        //         "sender": "B"
+        //     }
+        // ]
+        console.log("res", res);
+        this.received_data.translated_conversations = res;
+        this.is_translating = !this.is_translating;
       }
       this.is_translation_shown = !this.is_translation_shown;
     },
