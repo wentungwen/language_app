@@ -8,21 +8,12 @@
         <b-row>
           <b-col cols="3">
             <b-form-select
-              v-model="form_data.lan_code"
+              v-model="current_conversation.lan_code"
               :options="language_options"
             ></b-form-select>
           </b-col>
           <b-col class="d-flex align-items-center">
-            <b-button @click="openModal">Edit testing sentences</b-button>
-
-            <b-form-checkbox
-              class="ml-2"
-              v-model="is_random"
-              name="check-button"
-              switch
-            >
-              random
-            </b-form-checkbox>
+            <b-button @click="open_modal">Edit testing sentences</b-button>
             <b-form-checkbox
               class="ml-2"
               v-model="always_show_text"
@@ -33,29 +24,59 @@
             </b-form-checkbox>
           </b-col>
         </b-row>
-        <!-- save as hard sentence -->
-        <b-row>
-          <b-card class="mt-3">
+        <!-- questions demonstration start -->
+        <b-row class="my-3">
+          <!-- final score and wrong answers -->
+          <b-card v-if="!is_test_end"
+            ><h2>
+              Correct:
+              {{
+                testing_sentence.sentences_arr.length - wrong_senteces.length
+              }}
+              /
+              {{ testing_sentence.sentences_arr.length }}
+            </h2>
+            <p v-if="wrong_senteces.length === 0">You got everyhting right!</p>
+            <div v-else>
+              <b>These are senteces you got wrong, time to practice:)</b>
+              <ul>
+                <li v-for="(sentence, idx) in wrong_senteces" :key="idx">
+                  {{ sentence }}
+                </li>
+              </ul>
+            </div>
+            <div class="float-right">
+              <b-button @click="test_again_btn" class="mr-2"
+                >Test again</b-button
+              >
+              <b-button @click="next_one_btn" variant="primary"
+                >next one</b-button
+              >
+            </div>
+          </b-card>
+          <!-- testing questions-->
+          <b-card v-else>
+            <h3>
+              Remaining:
+              {{
+                testing_sentence.sentences_arr.length -
+                testing_sentence.curr_sentence_idx
+              }}
+            </h3>
             <b-button @click="play_btn" variant="primary" class="mr-2">
-              <b-icon-play-fill></b-icon-play-fill>Play (space)
+              <b-icon-play-fill></b-icon-play-fill>Play
             </b-button>
-            <b-button
-              @click="is_important = !is_important"
-              :class="is_important ? 'btn-primary' : 'btn-secondary'"
-            >
-              <b-icon-star v-if="!is_important"></b-icon-star>
-              <b-icon-star-fill v-else></b-icon-star-fill>
-              Save as Hard sentence
-            </b-button>
+
             <hr />
             <div class="wrapper" :style="is_blurred ? 'filter: blur(5px)' : ''">
-              <h3>{{ testing_sentence.sentence }}</h3>
+              <h3>{{ testing_sentence.curr_sentence }}</h3>
               <p>{{ testing_sentence.translation }}</p>
             </div>
           </b-card>
         </b-row>
-        <!-- answer -->
-        <b-row>
+        <!-- questions demonstration end -->
+        <!-- answer start -->
+        <b-row class="my-3" v-if="!is_test_end">
           <b-card class="mt-3">
             <b-form-group>
               <h4>Answer</h4>
@@ -73,15 +94,16 @@
                       width: trim_punctuation(word).length + 6 + 'ch',
                     }"
                     :maxlength="trim_punctuation(word).length"
-                    @keydown="handle_keydown(idx, $event)"
+                    @keydown="handle_key(idx, $event)"
                   ></b-form-input>
                 </div>
               </div>
             </b-form-group>
           </b-card>
         </b-row>
-        <br />
-        <b-row class="d-flex justify-content-end">
+        <!-- answer end -->
+        <!-- check and next button start-->
+        <b-row class="d-flex justify-content-end" v-if="!is_test_end">
           <b-button
             variant="primary"
             style="width: 100px"
@@ -97,18 +119,19 @@
             >Next</b-button
           >
         </b-row>
-
-        <!-- sentence editing modal -->
+        <!-- check and next button end -->
+        <!-- sentence editing modal start-->
         <b-modal v-model="is_modal_open" title="Practice sentences">
           <b-row class="m-3">
             <b-form-textarea
               class="w-100 h-75"
               rows="10"
               placeholder="Enter the sentences you want to practice line by line."
-              v-model="all_sentences_text"
+              v-model="edited_conversation_string"
             ></b-form-textarea>
           </b-row>
         </b-modal>
+        <!-- sentence editing modal end-->
       </b-col>
     </b-row>
   </b-container>
@@ -120,18 +143,13 @@ export default {
       condition: "check",
       always_show_text: true,
       is_blurred: true,
-      is_important: false,
-      is_random: false,
       is_modal_open: false,
+      is_test_end: false,
       current_idx: 0,
-      input_answer_values: [],
-      all_sentences_text:
-        "Mijn zus heeft vanochtend een auto gekocht. \nDe kat heeft in de zon gelegen. \nWaar hebben jullie vanavond gegeten? \n Wie heb je in het park gezien?\nWij zijn vandaag thuis gebleven ",
-      form_data: {
+      wrong_senteces: [],
+      edited_conversation_string: "Hoe is je thuis?\nHoe is je thuis?",
+      current_conversation: {
         lan_code: "nl",
-        level: null,
-        sentence_num: null,
-        topic: null,
       },
       language_options: [
         { value: "nl", text: "Dutch" },
@@ -144,26 +162,109 @@ export default {
       },
     };
   },
+
+  props: {
+    get_conversations: Function,
+    loaded_conversation: Object,
+  },
+  computed: {
+    edited_conversation_arr() {
+      return this.edited_conversation_string.split("\n");
+    },
+    testing_sentence() {
+      const target_sentences = this.edited_conversation_string
+        .split("\n")
+        .filter((sentence) => sentence !== "");
+      const target_sentence = target_sentences[this.current_idx];
+      const target_sentence_arr = target_sentence
+        .split(" ")
+        .map((word) => {
+          return this.trim_punctuation(word);
+        })
+        .filter((word) => word !== "");
+      return {
+        sentences_arr: target_sentences,
+        curr_sentence_idx: this.current_idx,
+        curr_sentence: target_sentence,
+        trimmed_sentence_arr: target_sentence_arr,
+      };
+    },
+  },
+  watch: {
+    loaded_conversation(new_conversation) {
+      if (new_conversation) {
+        if (new_conversation.lan_code) {
+          this.current_conversation.lan_code = new_conversation.lan_code;
+        }
+        this.current_conversation = new_conversation;
+        this.edited_conversation_string = this.conversation_to_string(
+          new_conversation.conversations
+        );
+      }
+    },
+    always_show_text(new_value) {
+      this.is_blurred = new_value;
+    },
+  },
   methods: {
+    next_one_btn() {
+      console.log("next");
+    },
+    test_again_btn() {
+      console.log("test again");
+    },
+    conversation_to_string(conversations) {
+      let text = "";
+      conversations.forEach((conv) => {
+        text += `${conv.content}\n`;
+      });
+      return text;
+    },
     next_btn() {
-      this.condition = "check";
-      const sentences = this.all_sentences_text.split("\n");
-      if (this.current_idx < sentences.length - 1) {
-        this.is_blurred = this.always_show_text ? true : false;
-        this.current_idx += 1;
+      const total_num = this.testing_sentence.sentences_arr.length;
+      const current = this.current_idx + 1;
+      if (total_num === current) {
+        this.is_test_end = true;
       } else {
-        console.log("end");
+        if (this.current_idx === this.current_conversation.length) {
+          this.wrong_senteces = [];
+        }
+        document.querySelectorAll(".input-answer").forEach((input) => {
+          input.style.backgroundColor = "white";
+          input.value = "";
+        });
+        this.condition = "check";
+        const sentences = this.edited_conversation_string.split("\n");
+        if (this.current_idx < sentences.length - 1) {
+          this.is_blurred = this.always_show_text ? true : false;
+          this.current_idx += 1;
+        }
+        this.play_btn();
       }
     },
     check_btn() {
       this.is_blurred = false;
       this.condition = "next";
-      // const current_sentence = this.testing_sentence.trimmed_sentence_arr;
+      let answer_inputs_value = [];
+      let is_this_question_correct = true;
+      const correct_answer_value = this.testing_sentence.trimmed_sentence_arr;
       const answer_inputs = document.querySelectorAll(".input-answer");
       answer_inputs.forEach((input) => {
-        this.input_answer_values.push(input.value);
+        answer_inputs_value.push(input.value);
       });
-      console.log(this.testing_sentence.trimmed_sentence_arr);
+      for (let i = 0; i < correct_answer_value.length; i++) {
+        const correct_ans = correct_answer_value[i].trim().toLowerCase();
+        const input_ans = answer_inputs_value[i].trim().toLowerCase();
+        if (correct_ans == input_ans) {
+          answer_inputs[i].style.backgroundColor = "white";
+        } else {
+          answer_inputs[i].style.backgroundColor = "#ffd6d6";
+          is_this_question_correct = false;
+        }
+      }
+      if (!is_this_question_correct) {
+        this.wrong_senteces.push(this.testing_sentence.curr_sentence);
+      }
     },
     speak_text(text, lan_code, rate, volumn) {
       const speech_utterance = new SpeechSynthesisUtterance(text);
@@ -172,58 +273,35 @@ export default {
       speech_utterance.volume = volumn;
       window.speechSynthesis.speak(speech_utterance);
     },
-    handle_keydown(idx, event) {
+    handle_key(idx, event) {
       if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
-        const nextIdx = event.key === "ArrowRight" ? idx + 1 : idx - 1;
-        const nextInput = this.$refs[`word${nextIdx}`]?.[0];
-        if (nextInput) {
-          nextInput.focus();
+        const next_idx = event.key === "ArrowRight" ? idx + 1 : idx - 1;
+        const next_input = this.$refs[`word${next_idx}`]?.[0];
+        if (next_input) {
+          next_input.focus();
         }
       } else if (event.key === "Enter") {
-        this.check_btn();
+        this.condition === "check" ? this.check_btn() : this.next_btn();
       }
     },
     trim_punctuation(word) {
-      const punctuationRegex = /[!"#$%&()*+,\-./:;<=>?@[\]^_`{|}~]/g;
-      return word.replace(punctuationRegex, "");
+      const punctuation_regex = /[!"#$%&()*+,\-./:;<=>?@[\]^_`{|}~]/g;
+      return word.replace(punctuation_regex, "").trim();
     },
-    // sentences_submit() {
-    //   console.log(this.all_sentences_array);
-    // },
-    openModal() {
+    open_modal() {
       this.is_modal_open = true;
     },
     play_btn() {
       this.speak_text(
-        this.testing_sentence.sentence,
-        this.form_data.lan_code,
+        this.testing_sentence.curr_sentence,
+        this.current_conversation.lan_code,
         this.speak_text_data.rate,
         this.speak_text_data.volumn
       );
     },
   },
-  computed: {
-    testing_sentence() {
-      const target_sentence = this.all_sentences_text
-        .split("\n")
-        .filter((sentence) => sentence !== "")[this.current_idx];
-      const target_sentence_arr = target_sentence
-        .split(" ")
-        .map((word) => {
-          return this.trim_punctuation(word);
-        })
-        .filter((word) => word !== "");
-      return {
-        sentence: target_sentence,
-        trimmed_sentence_arr: target_sentence_arr,
-        translation: "translation",
-      };
-    },
-  },
-  watch: {
-    always_show_text(new_value) {
-      this.is_blurred = new_value;
-    },
+  mounted() {
+    this.get_conversations();
   },
 };
 </script>
