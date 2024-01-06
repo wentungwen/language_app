@@ -21,6 +21,7 @@
           :conversations="conversations"
           :loaded_conversation="loaded_conversation"
           :get_conversations="get_conversations"
+          @to_next_conversation="handle_next_conversation"
         />
       </b-row>
     </div>
@@ -38,7 +39,6 @@ export default {
     return {
       user_id: null,
       loading: false,
-      active_conversation: 1,
       conversations: [],
       loaded_conversation: null,
     };
@@ -50,6 +50,13 @@ export default {
     SideBar,
   },
   methods: {
+    handle_next_conversation(conv_id) {
+      const target_id = this.conversations.findIndex(
+        (conv) => conv.conversation_id === conv_id
+      );
+      const next_conv = this.conversations[target_id + 1];
+      this.loaded_conversation = next_conv;
+    },
     load_conversation(conversation_id) {
       if (this.loaded_conversation) {
         this.loaded_conversation = this.conversations.find(
