@@ -13,11 +13,13 @@
 
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
-          <b-nav-item to="/user-setting">
+          <b-nav-item v-if="is_logged_in" to="/user-setting">
             <b-icon-person-circle></b-icon-person-circle>
-            <strong>
-              {{ username ? "Welcome, " + username : "Please login" }}!</strong
-            >
+            <strong> {{ "Welcome, " + username }}!</strong>
+          </b-nav-item>
+          <b-nav-item v-else>
+            <b-icon-person-circle></b-icon-person-circle>
+            <strong> {{ "Please login" }}!</strong>
           </b-nav-item>
 
           <!-- Sign up/ login/logout link  -->
@@ -41,7 +43,7 @@
             <b-input-group-text>Username</b-input-group-text>
           </template>
           <b-form-input
-            id="username-input"
+            id="signup-username-input"
             type="text"
             required
             v-model="signup_data.username"
@@ -52,7 +54,7 @@
             <b-input-group-text>Email</b-input-group-text>
           </template>
           <b-form-input
-            id="email-input"
+            id="signup-email-input"
             type="email"
             required
             v-model="signup_data.email"
@@ -63,7 +65,7 @@
             <b-input-group-text>Password</b-input-group-text>
           </template>
           <b-form-input
-            id="password-input"
+            id="signup-password-input"
             type="password"
             required
             v-model="signup_data.password"
@@ -79,7 +81,7 @@
             <b-input-group-text>Email</b-input-group-text>
           </template>
           <b-form-input
-            id="email-input"
+            id="login-email-input"
             type="email"
             required
             v-model="login_data.email"
@@ -90,7 +92,7 @@
             <b-input-group-text>Password</b-input-group-text>
           </template>
           <b-form-input
-            id="password-input"
+            id="login-password-input"
             type="password"
             required
             v-model="login_data.password"
@@ -105,8 +107,10 @@
 </template>
 <script>
 import axios from "axios";
+import AuthMixins from "@/mixins/AuthMixins";
 export default {
   name: "NavBar",
+  mixins: [AuthMixins],
   data() {
     return {
       username: localStorage.getItem("username"),
@@ -181,9 +185,6 @@ export default {
 };
 </script>
 <style>
-/* .nav-decoration{
-  margin-
-} */
 .nav-decoration a {
   position: relative;
   display: inline-block;

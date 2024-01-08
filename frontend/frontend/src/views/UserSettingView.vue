@@ -23,11 +23,11 @@
       <b-col cols="10">
         <b-card class="px-2">
           <b-row class="flex-wrap">
-            <h2>your conversations</h2>
+            <h2>Your conversations</h2>
             <hr />
             <b-col
               cols="4"
-              v-for="(conversation, idx) in all_conversations"
+              v-for="(conversation, idx) in conversations"
               :key="idx"
             >
               <b-card class="mb-4">
@@ -37,9 +37,9 @@
                   >
                     <h4 class="mt-2">{{ conversation.topic }}</h4>
                     <div>
-                      <span class="badge bg-white text-dark mr-1">{{
+                      <!-- <span class="badge bg-white text-dark mr-1">{{
                         conversation.date
-                      }}</span>
+                      }}</span> -->
                       <span class="badge bg-white text-dark">{{
                         conversation.lan_code
                       }}</span>
@@ -72,7 +72,7 @@
     </b-row>
 
     <b-modal
-      id="modal-signup"
+      id="modal-setting"
       title="Edit modal"
       class="d-flex flex-row justify-content-center align-items-center"
       size="lg"
@@ -90,7 +90,7 @@
                 <b-input-group-text>Username</b-input-group-text>
               </template>
               <b-form-input
-                id="username-input"
+                id="setting-username-input"
                 type="text"
                 required
                 v-model="user_input_data.username"
@@ -101,7 +101,7 @@
                 <b-input-group-text>Email</b-input-group-text>
               </template>
               <b-form-input
-                id="email-input"
+                id="setting-email-input"
                 type="email"
                 required
                 v-model="user_input_data.email"
@@ -112,7 +112,7 @@
                 <b-input-group-text>Password</b-input-group-text>
               </template>
               <b-form-input
-                id="password-input"
+                id="setting-password-input"
                 type="password"
                 required
                 v-model="user_input_data.password"
@@ -125,11 +125,18 @@
   </div>
 </template>
 <script>
-import axios from "axios";
+import AuthMixins from "@/mixins/AuthMixins";
+// import axios from "axios";
 export default {
   name: "UserSettingView",
+  mixins: [AuthMixins],
   props: {
+    get_conversations: Function,
     conversations: Array,
+    username: {
+      type: String,
+      default: "",
+    },
   },
   data() {
     return {
@@ -151,13 +158,12 @@ export default {
       this.is_edit_modal_shown = true;
     },
   },
-  created() {
-    axios.get("http://127.0.0.1:5000/get-all-conversations").then((res) => {
-      this.all_conversations = res.data.data.map((conversation) => ({
-        ...conversation,
-        is_translation_shown: false,
-      }));
-    });
+  mounted() {
+    if (this.is_logged_in) {
+      this.get_conversations();
+      const username = localStorage.getItem("username");
+      this.user_input_data.username = username;
+    }
   },
 };
 </script>
