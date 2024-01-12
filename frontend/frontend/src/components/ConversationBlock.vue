@@ -292,10 +292,11 @@ export default {
         lan_code: this.received_data.lan_code,
         topic: this.received_data.topic,
       };
+      console.log(payload);
       axios
         .post(`http://127.0.0.1:5000/generate-five`, payload)
         .then((res) => {
-          const new_conversation_arr = JSON.parse(res.data);
+          const new_conversation_arr = res.data;
           new_conversation_arr.forEach((conv) => {
             this.received_data.conversations.push(conv);
           });
@@ -304,6 +305,7 @@ export default {
         .catch((err) => {
           console.log(err);
         });
+      this.received_data.translated_conversations = NaN;
     },
     // picture block
     adjust_speed(request) {
@@ -412,7 +414,7 @@ export default {
       // TODO: figure out NaN
     },
     async translate_btn(received_data) {
-      // TODO: the translation didn't update after extending
+      // TODO: think about optimising it
       if (
         !this.received_data.translated_conversations ||
         this.received_data.translated_conversations.length == 0
@@ -421,17 +423,6 @@ export default {
         const lan_code = received_data.lan_code;
         const conversations = received_data.conversations;
         const res = await translate_conversations(lan_code, conversations);
-        console.log(typeof conversations, conversations);
-        //         [
-        //     {
-        //         "content": "Hoe is je huis?",
-        //         "sender": "A"
-        //     },
-        //     {
-        //         "content": "Mijn huis is geweldig!",
-        //         "sender": "B"
-        //     }
-        // ]
         console.log("res", res);
         this.received_data.translated_conversations = res;
         this.is_translating = !this.is_translating;
