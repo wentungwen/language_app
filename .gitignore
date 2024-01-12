@@ -1,7 +1,25 @@
-.idea
+# Ignore compiled binary files
+*.exe
+*.dll
+*.so
+
+# Ignore macOS hidden files
+.DS_Store
+
+# Ignore IDE settings
+.vscode/
+.idea/
+
+# Ignore environment-specific files
+.env
+.env.local
+.env.prod
+
+# Ignore build output
+/build/
+/dist/
+
 var.sh
 *.pyc
 */__pycache__
-*DS_Store
 credentials
-
