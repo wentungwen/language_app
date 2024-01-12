@@ -15,7 +15,7 @@
         <b-navbar-nav class="ml-auto">
           <b-nav-item v-if="is_logged_in" to="/user-setting">
             <b-icon-person-circle></b-icon-person-circle>
-            <strong> {{ "Welcome, " + username }}!</strong>
+            <strong> {{ "Welcome, " + user_data.username }}!</strong>
           </b-nav-item>
           <b-nav-item v-else>
             <b-icon-person-circle></b-icon-person-circle>
@@ -113,7 +113,10 @@ export default {
   mixins: [AuthMixins],
   data() {
     return {
-      username: localStorage.getItem("username"),
+      user_data: {
+        username: "",
+        email: "",
+      },
       routes: [
         { path: "/", name: "Generator", icon: "box" },
         {
@@ -140,23 +143,36 @@ export default {
     };
   },
   methods: {
-    login_submit(event) {
-      event.preventDefault();
-      if (this.login_data.email === "" || this.login_data.password === "") {
+    login_submit(evt) {
+      evt.preventDefault();
+      if (
+        this.login_data.email.trim() === "" ||
+        this.login_data.password.trim() === ""
+      ) {
         this.login_warning = "Please enter email and password";
       } else {
         axios
           .post("http://127.0.0.1:5000/login", this.login_data)
           .then((res) => {
             this.set_cookie("token", res.data.token);
-            localStorage.setItem("username", res.data.username);
+            localStorage.setItem(
+              "lan_user_data",
+              JSON.stringify({
+                username: res.data.username,
+                email: res.data.email,
+                user_id: res.data.user_id,
+              })
+            );
             window.location.reload();
           })
           .catch((err) => {
-            if (err.response && err.response.status === 404) {
-              this.login_warning = "Wrong email or password.";
+            if (
+              (err.response && err.response.status === 401) ||
+              err.response.status === 404
+            ) {
+              this.login_warning = err.response.data.message;
             } else {
-              this.login_warning = "Something went wrong";
+              this.login_warning = "Something went wrong.";
             }
           });
       }
@@ -181,6 +197,14 @@ export default {
       this.delete_cookie("token");
       window.location.reload();
     },
+  },
+  created() {
+    const user_data = JSON.parse(localStorage.getItem("lan_user_data"));
+    console.log(user_data);
+    this.user_data = {
+      username: user_data.username,
+      email: user_data.email,
+    };
   },
 };
 </script>

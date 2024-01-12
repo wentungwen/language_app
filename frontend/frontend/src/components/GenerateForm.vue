@@ -2,7 +2,7 @@
   <div class="mt-3">
     <h3>Conversation Generator</h3>
     <br />
-    <b-form @submit="submitForm">
+    <b-form @submit="submit_form">
       <!-- language: select -->
       <b-form-group label="I'm learning:" label-for="language-select">
         <b-form-select
@@ -49,7 +49,7 @@
       <!-- Submit Button -->
       <b-button
         :variant="is_loading ? 'dark w-100' : 'primary w-100'"
-        @submit="submitForm"
+        @submit="submit_form"
         type="submit"
       >
         <template v-if="!is_loading">Generate!</template>
@@ -80,6 +80,12 @@ export default {
         { value: "nl", text: "Dutch" },
         { value: "es", text: "Spanish" },
         { value: "ja", text: "Japanese" },
+        { value: "fr", text: "French" },
+        { value: "de", text: "German" },
+        { value: "it", text: "Italian" },
+        { value: "ar", text: "Arabic" },
+        { value: "hi", text: "Hindi" },
+        { value: "zh-TW", text: "Chinese" },
       ],
       levelOptions: ["A1", "A2", "B1", "B2"],
       generated_data: {
@@ -99,7 +105,8 @@ export default {
       axios
         .post(`http://127.0.0.1:5000/generate-conversation`, payload)
         .then((res) => {
-          this.generated_data.conversations = JSON.parse(res.data);
+          console.log("res", res);
+          this.generated_data.conversations = res.data;
           this.generated_data.lan_code = this.formData.lan_code;
           this.generated_data.topic = this.formData.topic;
           eventBus.$emit("generated_data", this.generated_data);
@@ -109,7 +116,7 @@ export default {
           console.log(err);
         });
     },
-    submitForm(evt) {
+    submit_form(evt) {
       evt.preventDefault();
       this.is_loading = true;
       this.generate_conversation(this.formData);
