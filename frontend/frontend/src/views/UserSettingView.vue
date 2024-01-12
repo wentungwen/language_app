@@ -221,7 +221,10 @@ export default {
         const payload = this.user_input_data;
         console.log("payload", payload);
         axios
-          .post(`http://127.0.0.1:5000/update-user-data`, payload)
+          .post(
+            `https://language-helper.herokuapp.com/api/update-user-data`,
+            payload
+          )
           .then((res) => {
             console.log(res);
             let old_data = this.user_input_data.origin_data;

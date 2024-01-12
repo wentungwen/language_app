@@ -103,7 +103,10 @@ export default {
   methods: {
     generate_conversation(payload) {
       axios
-        .post(`http://127.0.0.1:5000/generate-conversation`, payload)
+        .post(
+          `https://language-helper.herokuapp.com/api/generate-conversation`,
+          payload
+        )
         .then((res) => {
           console.log("res", res);
           this.generated_data.conversations = res.data;

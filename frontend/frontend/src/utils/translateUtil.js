@@ -10,7 +10,7 @@ export async function translate_conversations(lan_code, conversations) {
 
   try {
     const response = await axios.post(
-      "http://127.0.0.1:5000/translate",
+      "https://language-helper.herokuapp.com/api/translate",
       payload
     );
     return response.data;

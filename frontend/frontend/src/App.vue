@@ -72,7 +72,10 @@ export default {
         },
       };
       axios
-        .get(`http://127.0.0.1:5000/get-conversations`, config)
+        .get(
+          `https://language-helper.herokuapp.com/api/get-conversations`,
+          config
+        )
         .then((res) => {
           if (res.data) {
             this.conversations = res.data["data"];

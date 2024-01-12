@@ -234,7 +234,7 @@ export default {
           translate_to_lan_code,
         };
         axios
-          .post("http://127.0.0.1:5000/translate", payload)
+          .post("https://language-helper.herokuapp.com/api/translate", payload)
           .then((res) => {
             conversation.is_translation_shown = true;
             conversation.conversations.forEach((message, idx) => {
@@ -272,12 +272,14 @@ export default {
     },
   },
   created() {
-    axios.get("http://127.0.0.1:5000/get-all-conversations").then((res) => {
-      this.all_conversations = res.data.data.map((conversation) => ({
-        ...conversation,
-        is_translation_shown: false,
-      }));
-    });
+    axios
+      .get("https://language-helper.herokuapp.com/api/get-all-conversations")
+      .then((res) => {
+        this.all_conversations = res.data.data.map((conversation) => ({
+          ...conversation,
+          is_translation_shown: false,
+        }));
+      });
   },
 };
 </script>

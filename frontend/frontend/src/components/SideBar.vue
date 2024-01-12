@@ -76,7 +76,10 @@ export default {
           },
         };
         axios
-          .delete("http://127.0.0.1:5000/delete-conversation", config)
+          .delete(
+            "https://language-helper.herokuapp.com/api/delete-conversation",
+            config
+          )
           .then((res) => {
             if (res.status === 200) {
               this.get_conversations();

@@ -294,7 +294,10 @@ export default {
       };
       console.log(payload);
       axios
-        .post(`http://127.0.0.1:5000/generate-five`, payload)
+        .post(
+          `https://language-helper.herokuapp.com/api/generate-five`,
+          payload
+        )
         .then((res) => {
           const new_conversation_arr = res.data;
           new_conversation_arr.forEach((conv) => {
@@ -388,7 +391,7 @@ export default {
         data: this.received_data,
       };
       axios
-        .post("http://127.0.0.1:5000/save", payload, config)
+        .post("https://language-helper.herokuapp.com/api/save", payload, config)
         .then((res) => {
           if (res.status === 200) {
             this.is_saved = true;
