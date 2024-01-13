@@ -19,8 +19,29 @@
 /build/
 /dist/
 
-var.sh
+# Ignore Python specific files
 *.pyc
-*/__pycache__
+*/__pycache__/
+
+# Ignore credentials
 credentials
-*.vscode
+
+# Ignore local environment files
+.env.local
+.env.*.local
+
+# Ignore log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Ignore editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+node_modules
