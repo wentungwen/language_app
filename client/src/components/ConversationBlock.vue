@@ -295,7 +295,7 @@ export default {
       console.log(payload);
       axios
         .post(
-          `https://language-helper.herokuapp.com/api/generate-five`,
+          `${process.env.VUE_API_BASE_URL}/generate-five`,
           payload
         )
         .then((res) => {
@@ -391,7 +391,7 @@ export default {
         data: this.received_data,
       };
       axios
-        .post("https://language-helper.herokuapp.com/api/save", payload, config)
+        .post(`${process.env.VUE_API_BASE_URL}/save`, payload, config)
         .then((res) => {
           if (res.status === 200) {
             this.is_saved = true;

@@ -77,7 +77,7 @@ export default {
         };
         axios
           .delete(
-            "https://language-helper.herokuapp.com/api/delete-conversation",
+            `${process.env.VUE_API_BASE_URL}/delete-conversation`,
             config
           )
           .then((res) => {

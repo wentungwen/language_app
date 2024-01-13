@@ -7,7 +7,7 @@ import authMixin from "./mixins/AuthMixins";
 
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
-import "../src/assets/css/bootstrap3.min.css";
+import "./assets/css/bootstrap3.min.css";
 Vue.mixin(authMixin);
 
 Vue.use(BootstrapVue);

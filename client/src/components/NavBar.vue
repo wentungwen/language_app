@@ -153,7 +153,7 @@ export default {
       } else {
         axios
           .post(
-            "https://language-helper.herokuapp.com/api/login",
+            `${process.env.VUE_API_BASE_URL}/login`,
             this.login_data
           )
           .then((res) => {
@@ -186,7 +186,7 @@ export default {
     signup_submit() {
       axios
         .post(
-          "https://language-helper.herokuapp.com/api/signup",
+          `${process.env.VUE_API_BASE_URL}/signup`,
           this.signup_data
         )
         .then((res) => {

@@ -73,7 +73,7 @@ export default {
       };
       axios
         .get(
-          `https://language-helper.herokuapp.com/api/get-conversations`,
+          `${process.env.VUE_API_BASE_URL}/get-conversations`,
           config
         )
         .then((res) => {

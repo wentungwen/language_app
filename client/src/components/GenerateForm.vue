@@ -104,7 +104,7 @@ export default {
     generate_conversation(payload) {
       axios
         .post(
-          `https://language-helper.herokuapp.com/api/generate-conversation`,
+          `${process.env.VUE_API_BASE_URL}/generate-conversation`,
           payload
         )
         .then((res) => {

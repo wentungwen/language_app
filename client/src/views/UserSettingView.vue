@@ -222,7 +222,7 @@ export default {
         console.log("payload", payload);
         axios
           .post(
-            `https://language-helper.herokuapp.com/api/update-user-data`,
+            `${process.env.VUE_API_BASE_URL}/update-user-data`,
             payload
           )
           .then((res) => {
