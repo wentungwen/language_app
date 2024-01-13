@@ -1,2 +1,3 @@
 web: gunicorn main:app
-frontend: cd client && npm run serve
+client: cd client && npm run serve
+server: python main.py
