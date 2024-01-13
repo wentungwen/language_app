@@ -152,10 +152,7 @@ export default {
         this.login_warning = "Please enter email and password";
       } else {
         axios
-          .post(
-            `${process.env.VUE_API_BASE_URL}/login`,
-            this.login_data
-          )
+          .post(`${process.env.VUE_API_BASE_URL}/login`, this.login_data)
           .then((res) => {
             this.set_cookie("token", res.data.token);
             localStorage.setItem(
@@ -185,10 +182,7 @@ export default {
     },
     signup_submit() {
       axios
-        .post(
-          `${process.env.VUE_API_BASE_URL}/signup`,
-          this.signup_data
-        )
+        .post(`${process.env.VUE_API_BASE_URL}/signup`, this.signup_data)
         .then((res) => {
           this.set_cookie("token", res.data.token);
           localStorage.setItem("username", res.data.username);

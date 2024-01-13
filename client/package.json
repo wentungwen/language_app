@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve --port 8080",
-    "build": "vue-cli-service build",
+    "serve": "vue-cli-service serve",
+    "rimraf": "rimraf ../server/public",
+    "copyfiles": "copyfiles -u 1 ./dist/**/* ../server/public",
+    "build": "npm run rimraf && vue-cli-service build && npm run copyfiles",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

@@ -221,10 +221,7 @@ export default {
         const payload = this.user_input_data;
         console.log("payload", payload);
         axios
-          .post(
-            `${process.env.VUE_API_BASE_URL}/update-user-data`,
-            payload
-          )
+          .post(`${process.env.VUE_API_BASE_URL}/update-user-data`, payload)
           .then((res) => {
             console.log(res);
             let old_data = this.user_input_data.origin_data;

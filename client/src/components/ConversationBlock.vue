@@ -294,10 +294,7 @@ export default {
       };
       console.log(payload);
       axios
-        .post(
-          `${process.env.VUE_API_BASE_URL}/generate-five`,
-          payload
-        )
+        .post(`${process.env.VUE_API_BASE_URL}/generate-five`, payload)
         .then((res) => {
           const new_conversation_arr = res.data;
           new_conversation_arr.forEach((conv) => {
