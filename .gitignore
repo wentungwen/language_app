@@ -17,7 +17,6 @@
 
 # Ignore build output
 /build/
-/dist/
 
 # Ignore Python specific files
 *.pyc

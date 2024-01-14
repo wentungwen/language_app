@@ -103,7 +103,7 @@ export default {
   methods: {
     generate_conversation(payload) {
       axios
-        .post(`${process.env.VUE_API_BASE_URL}/generate-conversation`, payload)
+        .post(`${process.env.VUE_APP_API_BASE_URL}/generate-conversation`, payload)
         .then((res) => {
           console.log("res", res);
           this.generated_data.conversations = res.data;

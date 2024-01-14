@@ -72,7 +72,7 @@ export default {
         },
       };
       axios
-        .get(`${process.env.VUE_API_BASE_URL}/get-conversations`, config)
+        .get(`${process.env.VUE_APP_API_BASE_URL}/get-conversations`, config)
         .then((res) => {
           if (res.data) {
             this.conversations = res.data["data"];

@@ -294,7 +294,7 @@ export default {
       };
       console.log(payload);
       axios
-        .post(`${process.env.VUE_API_BASE_URL}/generate-five`, payload)
+        .post(`${process.env.VUE_APP_API_BASE_URL}/generate-five`, payload)
         .then((res) => {
           const new_conversation_arr = res.data;
           new_conversation_arr.forEach((conv) => {
@@ -388,7 +388,7 @@ export default {
         data: this.received_data,
       };
       axios
-        .post(`${process.env.VUE_API_BASE_URL}/save`, payload, config)
+        .post(`${process.env.VUE_APP_API_BASE_URL}/save`, payload, config)
         .then((res) => {
           if (res.status === 200) {
             this.is_saved = true;

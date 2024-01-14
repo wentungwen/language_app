@@ -10,7 +10,7 @@ export async function translate_conversations(lan_code, conversations) {
 
   try {
     const response = await axios.post(
-      `${process.env.VUE_API_BASE_URL}/translate`,
+      `${process.env.VUE_APP_API_BASE_URL}/translate`,
       payload
     );
     return response.data;

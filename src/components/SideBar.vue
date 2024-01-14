@@ -76,7 +76,10 @@ export default {
           },
         };
         axios
-          .delete(`${process.env.VUE_API_BASE_URL}/delete-conversation`, config)
+          .delete(
+            `${process.env.VUE_APP_API_BASE_URL}/delete-conversation`,
+            config
+          )
           .then((res) => {
             if (res.status === 200) {
               this.get_conversations();

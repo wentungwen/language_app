@@ -234,7 +234,7 @@ export default {
           translate_to_lan_code,
         };
         axios
-          .post(`${process.env.VUE_API_BASE_URL}/translate`, payload)
+          .post(`${process.env.VUE_APP_API_BASE_URL}/translate`, payload)
           .then((res) => {
             conversation.is_translation_shown = true;
             conversation.conversations.forEach((message, idx) => {
@@ -273,7 +273,7 @@ export default {
   },
   created() {
     axios
-      .get(`${process.env.VUE_API_BASE_URL}/get-all-conversations`)
+      .get(`${process.env.VUE_APP_API_BASE_URL}/get-all-conversations`)
       .then((res) => {
         this.all_conversations = res.data.data.map((conversation) => ({
           ...conversation,

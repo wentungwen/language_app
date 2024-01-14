@@ -40,7 +40,7 @@ python main.py
 
 ### Frontend Setup and Configuration
 
-1. Create a `.env` file in the `frontend` directory and configure the `VUE_API_BASE_URL` variable. For local development, you can set it to `http://localhost:5000` to match the backend server URL.
+1. Create a `.env` file in the `frontend` directory and configure the `VUE_APP_API_BASE_URL` variable. For local development, you can set it to `http://localhost:5000` to match the backend server URL.
 
 2. Install the necessary Node modules by running the following command within the `frontend` directory:
 npm install
