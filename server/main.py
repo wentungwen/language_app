@@ -19,6 +19,11 @@ GOOGLE_APPLICATION_CREDENTIALS = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"
 
 ## app and database config
 app = Flask(__name__)
+
+# set the port for heroku
+port = int(os.environ.get("PORT", 5000))
+app.run(host="0.0.0.0", port=port)
+
 CORS(app, resources={r"/*": {"origins": "*"}})
 app.config[
     "SQLALCHEMY_DATABASE_URI"
