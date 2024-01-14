@@ -28,7 +28,7 @@ The Language Learner app aims to provide a comprehensive and interactive languag
 pip install -r server/requirements.txt
 
 5. Configure the relevant environment variables. Create a `var.sh` file and write the following lines:
-export GPT_APIKEY="apikey" export GOOGLE_APPLICATION_CREDENTIALS="credential"
+export OPENAI_API_KEY="apikey" export GOOGLE_APPLICATION_CREDENTIALS="credential"
 
 Note: Replace "apikey" with your actual OpenAI GPT API key and "credential" with the path to your Google Cloud credentials file.
 

@@ -1,5 +1,6 @@
-from flask import Flask, jsonify, request, session
+from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
+from dotenv import load_dotenv
 from google.cloud import translate_v2 as translate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, ForeignKey, Integer, String
@@ -13,12 +14,15 @@ from datetime import datetime
 
 
 ## GPT & google translate
-GPT_APIKEY = os.environ.get("GPT_APIKEY")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 GPT_API_ENDPOINT = "https://api.openai.com/v1/chat/completions"
 GOOGLE_APPLICATION_CREDENTIALS = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 
+# Load environment variables from .env file
+load_dotenv()
+
 ## app and database config
-app = Flask(__name__)
+app = Flask(__name__, template_folder="./dist", static_folder="./dist")
 
 
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -30,7 +34,7 @@ app.config["SECRET_KEY"] = os.urandom(32)
 db = SQLAlchemy(app)
 
 # openai object
-ai_client = OpenAI(api_key=GPT_APIKEY)
+ai_client = OpenAI(api_key=OPENAI_API_KEY)
 
 
 class User(db.Model):
@@ -353,10 +357,9 @@ def get_all_conversations():
 
 
 def generate_gpt_conversation(lan_code, topic, sentence_num, level, note):
-    
     prompt = f"Language code: {lan_code}. Difficulty levels: {level}. Total sentences: {str(sentence_num)}. Topics: {topic}. Note: {note}."
-    
-    example = "[{\"sender\": \"A\", \"content\": \"...\"}, {\"sender\": \"B\", \"content\": \"...\"}]"
+
+    example = '[{"sender": "A", "content": "..."}, {"sender": "B", "content": "..."}]'
 
     response = ai_client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -441,11 +444,14 @@ def add_content_route():
     return "Content added successfully"
 
 
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
 if __name__ == "__main__":
     # with app.app_context():
     #     db.create_all()
     # set the port for heroku
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port, debug=True)
