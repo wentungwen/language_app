@@ -442,10 +442,10 @@ def add_content_route():
 
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
+    # with app.app_context():
+    #     db.create_all()
     # set the port for heroku
-    # port = int(os.environ.get("PORT", 5000))
-    # app.run(host="0.0.0.0", port=port)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
 
     app.run(debug=True)
